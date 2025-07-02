@@ -37,6 +37,16 @@ struct HomeView: View {
             log.dateOnly >= startOfWeek && log.dateOnly < endOfWeek
         }.reduce(0) { $0 + $1.prayersCompleted }
     }
+    
+    private var currentWeekLogs: [DailyLog] {
+        let calendar = Calendar.current
+        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: Date())!.start
+        let endOfWeek = calendar.dateInterval(of: .weekOfYear, for: Date())!.end
+        
+        return dailyLogs.filter { log in
+            log.dateOnly >= startOfWeek && log.dateOnly < endOfWeek
+        }
+    }
 
     private var progress: Double {
         guard userProfile.weeklyGoal > 0 else { return 0 }
@@ -114,23 +124,11 @@ struct HomeView: View {
                 .padding(.horizontal)
                 .padding(.top, 20) // Adjusted top padding for overall screen
 
-                // Weekly Progress Card
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Weekly Progress")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-
-                    ProgressView(value: progress) {
-                        Text("\(Int(progress * 100))%")
-                    }
-                    .tint(.green)
-
-                    Text("You made up \(prayersMadeUpThisWeek) prayers so far this week!")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding()
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                // Weekly Progress Capsules
+                WeeklyProgressCapsuleView(
+                    dailyGoal: userProfile.dailyGoal,
+                    weeklyLogs: currentWeekLogs
+                )
                 .padding(.horizontal)
 
                 // Today's Log with Dates

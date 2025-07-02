@@ -23,14 +23,7 @@ struct StatsView: View {
                             .frame(width: 100, height: 100)
                         }
 
-                        // Debt Composition Chart
-                        if let debt = profile.debt {
-                            DebtCompositionChartView(prayerDebt: debt)
-                        } else {
-                            Text("No prayer debt data available.")
-                                .foregroundColor(.secondary)
-                                .padding()
-                        }
+
 
                         // Prayer-Type Breakdown
                         VStack(alignment: .leading) {
@@ -99,12 +92,20 @@ struct StatsView: View {
                         }
 
                         // History Deep-Link
-                        NavigationLink(destination: Text("Full History List")) { // Placeholder for HistoryLogView
-                            Text("View Full History")
-                                .font(.headline)
-                                .padding()
-                                .frame(maxWidth: .infinity)
+                        NavigationLink(destination: HistoryView()) {
+                            HStack {
+                                Image(systemName: "clock.arrow.circlepath")
+                                Text("View Full History")
+                                    .font(.headline)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding()
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                         }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     .padding()
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))

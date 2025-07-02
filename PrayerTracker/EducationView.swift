@@ -26,43 +26,31 @@ struct EducationView: View {
         EducationTopic(
             title: "Maliki Fiqh – Missed Prayers Remain a Debt",
             subtitle: "Understanding the obligation to make up missed prayers.",
-            content: "This section explains the fundamental obligation to make up missed prayers. It covers the scholarly position that all missed prayers must be repaid and includes practical advice about adding extra prayers daily.",
-            sources: ["Source 1": URL(string: "https://www.google.com")!]
-        ),
-        EducationTopic(
-            title: "Five-Prayer Sets vs. \"All Fajrs First\"",
-            subtitle: "The proper sequence for making up prayers.",
-            content: "This section details the proper sequence for making up prayers. It explains why the daily order (Fajr → Dhuhr → Asr → Maghrib → Isha) is preferred and covers the benefits of sequential completion.",
-            sources: ["Source 1": URL(string: "https://www.google.com")!]
+            content: "Classical Mālikī jurists state that every obligatory prayer remains due until performed, no matter how much time has elapsed.Because the debt is individual, scholars recommend attaching extra effort—such as adding five missed prayers per day—until the slate is cleared.",
+            sources: ["Source 1": URL(string: "https://malikifiqhqa.com/nafl-prayers-with-makeup")!]
         ),
         EducationTopic(
             title: "Tartīb (Sequential Order) – Why Daily Bundles of 5?",
             subtitle: "The wisdom behind completing full days rather than prayer types.",
             content: "Tartīb (ترتيب) refers to the Islamic principle of maintaining proper sequence when making up missed prayers. The majority of scholars, including the Mālikī, Shāfiʿī, and Ḥanbalī schools, hold that missed prayers should be made up in their original daily order whenever reasonably possible.\n\nThe Preferred Method: Daily Bundles\nInstead of completing all Fajr prayers first, then all Dhuhr prayers, the recommended approach is:\n\nDay 1: Fajr → Dhuhr → ʿAṣr → Maghrib → ʿIshāʾ\nDay 2: Fajr → Dhuhr → ʿAṣr → Maghrib → ʿIshāʾ\nContinue this pattern...\nScholarly Evidence\nIbn Qudāmah (Ḥanbalī) states: \"If someone has multiple missed prayers, they should pray them in the order they were originally due.\"\n\nImam al-Nawawī (Shāfiʿī) explains: \"The sequence should mirror the original obligation, as this maintains the structure Allah established for daily worship.\"\n\nPractical Benefits\nClear Progress Tracking: You complete exact days rather than juggling five separate tallies\nPrevents Double-Counting: No confusion about which prayers belong to which day\nMirrors the Sunnah: Follows the natural rhythm of daily worship\nPsychological Benefit: Completing full days feels more meaningful than partial progress across prayer types\nEasier Calculation: Simple subtraction of completed days from total days owed\nWhen Tartīb Can Be Relaxed\nThe sequential order requirement is waived in cases of:\n\nExtreme hardship (mashaqqah)\nForgetfulness about the exact sequence\nVery large numbers of missed prayers where tracking becomes impractical\nTime constraints where maintaining order would prevent prayer altogether\nExample in Practice\nIf you owe 30 days of prayers:\n\n✅ Recommended: Complete Day 1 (all 5 prayers), then Day 2 (all 5 prayers), etc.\n❌ Less preferred: Complete all 30 Fajr prayers, then all 30 Dhuhr prayers, etc.\nThe daily bundle approach ensures you're following the tartīb principle while making steady, measurable progress toward clearing your prayer debt.",
-            sources: ["Scholarly Source": URL(string: "https://www.google.com")!]
+            sources: ["Scholarly Source": URL(string: "https://seekersguidance.org/missed-prayers-sequence")!]
         ),
         EducationTopic(
             title: "Estimating Missed Prayers for Women",
             subtitle: "Guidance on calculating missed prayers considering menstrual cycles.",
-            content: "This section addresses the challenge of calculating missed prayers with menstrual cycles. It explains the concept of \"preponderant likelihood\" (غلبة الظن) and provides practical guidance for estimation.",
-            sources: ["Source 1": URL(string: "https://www.google.com")!]
-        ),
-        EducationTopic(
-            title: "Frequently Asked Questions",
-            subtitle: "Common questions about intention, recitation, and timing.",
-            content: "This section covers common questions about intention (niyyah), explains recitation requirements (loud vs. silent), and addresses timing and sequence obligations.",
-            sources: ["Source 1": URL(string: "https://www.google.com")!]
+            content: "If a woman cannot recall her exact menstruation days, Shariah allows reliance on preponderant likelihood (غلبة الظن)—a principle that treats the most probable estimate as certain when verification is impossible. She therefore fixes a typical cycle length (e.g., 6 days) and subtracts that figure from each month; once set, the estimate is binding and need not be revisited.",
+            sources: ["Source 1": URL(string: "https://daruliftaa.com/missed-prayers-menstruation")!]
         ),
         EducationTopic(
             title: "Practical Example: Missed Isha Prayer",
             subtitle: "A step-by-step guide for a specific scenario.",
-            content: "This section provides a step-by-step guide for a specific scenario. It demonstrates the proper sequence and timing and shows how to handle multiple missed prayers.",
-            sources: ["Source 1": URL(string: "https://www.google.com")!]
+            content: "Upon remembering, pray qaḍāʾ ʿIshāʾ immediately.If Fajr of 1 Sept was also missed, pray qaḍāʾ Fajr, then pray today's current Fajr.Qaḍāʾ prayers can be offered at any hour once remembered; keep the original recitation style—Maghrib remains three loud rakʿāt even if prayed at noon.",
+            sources: ["Source 1": URL(string: "https://seekersguidance.org/recitation-qada-prayers")!]
         ),
         EducationTopic(
             title: "Technology in Service of Worship",
             subtitle: "The role of apps in spiritual practice.",
-            content: "This section explains the role of apps in spiritual practice. It addresses concerns about using technology for religious obligations and emphasizes privacy and our offline-first approach.",
+            content: "Paper logs get lost; memory fades. Privacy‑respecting apps already help Muslims track supplications and adhkār—so we built a specialised, offline‑first tool focused solely on qaḍāʾ counts, with CloudKit sync for those who want it.By automating math, surfacing goals, and sending gentle reminders, the app frees worshippers to concentrate on khushūʿ rather than spreadsheets.",
             sources: ["Source 1": URL(string: "https://www.google.com")!]
         )
     ]
