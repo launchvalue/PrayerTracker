@@ -69,19 +69,7 @@ struct OnboardingSummaryView: View {
                 }
             }
 
-            Button(action: onSave) {
-                Text("Let's Begin")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.accentColor)
-                    .cornerRadius(16)
-                    .shadow(radius: 5)
-            }
-            .padding(.horizontal, 40)
-            .padding(.bottom, 50)
+            
         }
         .padding()
     }

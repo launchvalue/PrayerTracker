@@ -73,24 +73,53 @@ struct OnboardingView: View {
                 // Navigation buttons (only for subsequent steps)
                 HStack {
                     if currentStep > 0 {
-                        Button("Back") {
+                        Button(action: {
                             withAnimation {
                                 currentStep -= 1
                             }
+                        }) {
+                            Text("Back")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.gray)
+                                .cornerRadius(16)
+                                .shadow(radius: 5)
                         }
                     }
 
                     Spacer()
 
-                    if currentStep < 4 {
-                        Button("Continue") {
+                    if currentStep > 0 && currentStep < 4 {
+                        Button(action: {
                             withAnimation {
                                 currentStep += 1
                             }
+                        }) {
+                            Text("Continue")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.accentColor)
+                                .cornerRadius(16)
+                                .shadow(radius: 5)
                         }
-                    } else {
-                        // This button will be handled by OnboardingSummaryView
-                        EmptyView()
+                    } else if currentStep == 4 {
+                        Button(action: saveProfile) {
+                            Text("Let's Begin")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.accentColor)
+                                .cornerRadius(16)
+                                .shadow(radius: 5)
+                        }
                     }
                 }
                 .padding()
