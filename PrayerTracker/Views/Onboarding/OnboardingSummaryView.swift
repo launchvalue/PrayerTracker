@@ -1,3 +1,4 @@
+
 //
 //  OnboardingSummaryView.swift
 //  PrayerTracker
@@ -30,15 +31,13 @@ struct OnboardingSummaryView: View {
         case .dateRange:
             let calendar = Calendar.current
             let components = calendar.dateComponents([.day], from: startDate, to: endDate)
-            var totalDays = (components.day ?? 0) + 1 // +1 to include the end date
+            var totalDays = (components.day ?? 0) + 1
             
             if gender == "Female" && averageCycleLength > 0 {
-                let approximateMonths = Double(totalDays) / 30.44 // Using 30.44 days per month for a more accurate average
+                let approximateMonths = Double(totalDays) / 30.44
                 let totalMenstrualDays = Int(approximateMonths * Double(averageCycleLength))
                 totalDays = max(0, totalDays - totalMenstrualDays)
-                print("OnboardingSummaryView: Female calculation - totalDays: \(totalDays), approximateMonths: \(approximateMonths), totalMenstrualDays: \(totalMenstrualDays)")
             }
-            print("OnboardingSummaryView: Calculated totalDebt: \(totalDays * 5)")
             return totalDays * 5
         case .bulk:
             return (bulkYears * 354) + (bulkMonths * 30) + (bulkDays * 5)
@@ -57,81 +56,71 @@ struct OnboardingSummaryView: View {
     }
 
     var body: some View {
-        ZStack {
-            // Background with a subtle gradient
-            LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]), startPoint: .top, endPoint: .bottom)
-                .edgesIgnoringSafeArea(.all)
-
-            VStack(spacing: 20) {
-                Text("Ready to Start?")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        summaryCard
-                        goalCard
-                    }
-                    .padding()
-                }
-
-                Button(action: onSave) {
-                    Text("Let's Begin")
-                        .font(.headline)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(15)
-                }
+        VStack(spacing: 30) {
+            Text("Ready to Start?")
+                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .multilineTextAlignment(.center)
                 .padding(.horizontal)
+
+            ScrollView {
+                VStack(spacing: 20) {
+                    summaryCard
+                    goalCard
+                }
             }
-            .padding(.vertical)
+
+            Button(action: onSave) {
+                Text("Let's Begin")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.accentColor)
+                    .cornerRadius(16)
+                    .shadow(radius: 5)
+            }
+            .padding(.horizontal, 40)
+            .padding(.bottom, 50)
         }
+        .padding()
     }
 
     private var summaryCard: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Summary")
-                .font(.title2)
-                .fontWeight(.semibold)
-
+                .font(.system(size: 22, weight: .bold, design: .rounded))
             summaryRow(label: "Name", value: name)
             summaryRow(label: "Gender", value: gender)
             summaryRow(label: "Calculation Method", value: calculationMethod.rawValue)
             summaryRow(label: "Total Prayer Debt", value: "\(totalDebt) prayers")
         }
         .padding()
-        .background(.ultraThinMaterial)
-        .cornerRadius(20)
+        .background(Color(UIColor.secondarySystemBackground))
+        .cornerRadius(16)
     }
 
     private var goalCard: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Your Goal")
-                .font(.title2)
-                .fontWeight(.semibold)
-
+                .font(.system(size: 22, weight: .bold, design: .rounded))
             summaryRow(label: "Daily Goal", value: "\(dailyGoal) prayers")
             summaryRow(label: "Weekly Goal", value: "\(dailyGoal * 7) prayers")
             summaryRow(label: "Estimated Completion", value: estimatedCompletionDate)
         }
         .padding()
-        .background(.ultraThinMaterial)
-        .cornerRadius(20)
+        .background(Color(UIColor.secondarySystemBackground))
+        .cornerRadius(16)
     }
 
     private func summaryRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.headline)
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundColor(.secondary)
             Spacer()
             Text(value)
-                .font(.body)
-                .fontWeight(.medium)
+                .font(.system(size: 16, weight: .medium, design: .rounded))
         }
     }
 }

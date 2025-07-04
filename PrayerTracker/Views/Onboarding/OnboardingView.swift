@@ -1,3 +1,4 @@
+
 //
 //  OnboardingView.swift
 //  PrayerTracker
@@ -37,17 +38,16 @@ struct OnboardingView: View {
         NavigationStack {
             VStack {
                 TabView(selection: $currentStep) {
-                    // New Welcome Screen
-                    AnyView(WelcomeView(currentStep: $currentStep))
+                    WelcomeView(currentStep: $currentStep)
                         .tag(0)
 
-                    AnyView(UserInfoView(name: $name, gender: $gender))
+                    UserInfoView(name: $name, gender: $gender)
                         .tag(1)
-                    AnyView(DebtCalculationView(gender: $gender, calculationMethod: $calculationMethod, startDate: $startDate, endDate: $endDate, bulkYears: $bulkYears, bulkMonths: $bulkMonths, bulkDays: $bulkDays, customFajr: $customFajr, customDhuhr: $customDhuhr, customAsr: $customAsr, customMaghrib: $customMaghrib, customIsha: $customIsha, averageCycleLength: $averageCycleLength))
+                    DebtCalculationView(gender: $gender, calculationMethod: $calculationMethod, startDate: $startDate, endDate: $endDate, bulkYears: $bulkYears, bulkMonths: $bulkMonths, bulkDays: $bulkDays, customFajr: $customFajr, customDhuhr: $customDhuhr, customAsr: $customAsr, customMaghrib: $customMaghrib, customIsha: $customIsha, averageCycleLength: $averageCycleLength)
                         .tag(2)
-                    AnyView(GoalSelectionView(dailyGoal: $dailyGoal))
+                    GoalSelectionView(dailyGoal: $dailyGoal)
                         .tag(3)
-                    AnyView(OnboardingSummaryView(
+                    OnboardingSummaryView(
                         name: name,
                         gender: gender,
                         calculationMethod: calculationMethod,
@@ -64,11 +64,10 @@ struct OnboardingView: View {
                         dailyGoal: dailyGoal,
                         averageCycleLength: averageCycleLength,
                         onSave: saveProfile
-                    ))
+                    )
                     .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .gesture(DragGesture())
 
                 // Navigation buttons (only for subsequent steps)
                 HStack {
@@ -148,53 +147,4 @@ struct OnboardingView: View {
             print("OnboardingView: Failed to save UserProfile: \(error.localizedDescription)")
         }
     }
-}
-
-struct WelcomeView: View {
-    @Binding var currentStep: Int
-
-    var body: some View {
-        VStack(spacing: 30) {
-            Spacer()
-
-            Image(systemName: "hand.raised.fill") // Placeholder for illustration
-                .resizable()
-                .scaledToFit()
-                .frame(width: 150, height: 150)
-                .foregroundColor(.accentColor)
-
-            Text("Welcome to Qada Prayer Companion")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            Text("Your personal tool to track and manage missed prayers, helping you fulfill your spiritual obligations with ease and confidence.")
-                .font(.title3)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-                .foregroundStyle(.secondary)
-
-            Spacer()
-
-            Button("Get Started") {
-                withAnimation {
-                    currentStep = 1 // Navigate to UserInfoView (gender selection)
-                }
-            }
-            .font(.headline)
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(Color.accentColor)
-            .foregroundColor(.white)
-            .cornerRadius(15)
-            .padding(.horizontal)
-
-            Spacer()
-        }
-    }
-}
-
-#Preview {
-    OnboardingView()
 }
