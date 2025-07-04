@@ -72,10 +72,27 @@ struct SignInView: View {
                 SignInWithAppleButton(
                     .signIn,
                     onRequest: { request in
-                        // Handle Apple ID sign-in request
+                        request.requestedScopes = [.fullName, .email]
                     },
                     onCompletion: { result in
-                        // Handle Apple ID sign-in completion
+                        switch result {
+                        case .success(let authResults):
+                            switch authResults.credential {
+                            case let appleIDCredential as ASAuthorizationAppleIDCredential:
+                                // User successfully signed in with Apple ID
+                                print("Apple Sign-In successful for user: \(appleIDCredential.user)")
+                                DispatchQueue.main.async {
+                                    authManager.isSignedIn = true
+                                }
+                            default:
+                                break
+                            }
+                        case .failure(let error):
+                            print("Apple Sign-In error: \(error.localizedDescription)")
+                            DispatchQueue.main.async {
+                                authManager.isSignedIn = false
+                            }
+                        }
                     }
                 )
                 .signInWithAppleButtonStyle(.black)

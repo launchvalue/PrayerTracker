@@ -33,6 +33,7 @@ struct OnboardingView: View {
     @State private var customIsha: Int = 0
     @State private var dailyGoal: Int = 5
     @State private var averageCycleLength: Int = 0
+    @State private var profileSaved: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -97,6 +98,7 @@ struct OnboardingView: View {
         }
     }
     private func saveProfile() {
+        guard !profileSaved else { return } // Prevent multiple saves
         print("OnboardingView: saveProfile called.")
         let fajrOwed: Int
         let dhuhrOwed: Int
@@ -121,7 +123,7 @@ struct OnboardingView: View {
             maghribOwed = debtDays
             ishaOwed = debtDays
         case .bulk:
-            let debt = (bulkYears * 354) + (bulkMonths * 30) + bulkDays
+            let debt = (bulkYears * 354) + (bulkMonths * 30) + (bulkDays * 5)
             fajrOwed = debt
             dhuhrOwed = debt
             asrOwed = debt
@@ -143,6 +145,7 @@ struct OnboardingView: View {
         do {
             try modelContext.save()
             print("OnboardingView: UserProfile saved successfully!")
+            profileSaved = true // Set flag to true after successful save
         } catch {
             print("OnboardingView: Failed to save UserProfile: \(error.localizedDescription)")
         }

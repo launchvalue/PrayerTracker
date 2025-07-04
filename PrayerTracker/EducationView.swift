@@ -132,6 +132,7 @@ struct EducationCardView: View {
                 VStack(alignment: .leading) {
                     Text(topic.title)
                         .font(.headline.bold())
+                        .foregroundColor(.black)
                     Text(topic.subtitle)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
