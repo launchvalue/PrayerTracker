@@ -23,96 +23,134 @@ struct DebtCalculationView: View {
     @Binding var averageCycleLength: Int
 
     var body: some View {
-        VStack {
-            Text("Calculate Your Prayer Debt")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding()
+        ZStack {
+            // Background with a subtle gradient
+            LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]), startPoint: .top, endPoint: .bottom)
+                .edgesIgnoringSafeArea(.all)
 
-            Picker("Calculation Method", selection: $calculationMethod) {
-                ForEach(CalculationMethod.allCases, id: \.self) {
-                    Text($0.rawValue)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding()
+            VStack(spacing: 20) {
+                Text("Calculate Your Prayer Debt")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
 
-            Form {
-                switch calculationMethod {
-                case .dateRange:
-                    DatePicker(
-                        "Start Date",
-                        selection: $startDate,
-                        in: ...endDate,
-                        displayedComponents: .date
-                    )
-                    .onChange(of: startDate) {
-                        print("DebtCalculationView: Start Date changed to \(startDate)")
-                    }
-                    DatePicker(
-                        "End Date",
-                        selection: $endDate,
-                        in: startDate...,
-                        displayedComponents: .date
-                    )
-                    .onChange(of: endDate) {
-                        print("DebtCalculationView: End Date changed to \(endDate)")
-                    }
-                    
-                    if gender == "Female" && calculationMethod == .dateRange {
-                        Section(header: Text("Menstrual Cycle Information")) {
-                            TextField("Average Cycle Length (days)", value: $averageCycleLength, format: .number)
-                                .keyboardType(.numberPad)
-                            Text("ℹ️ This helps us calculate your Qada prayers more accurately by excluding days when prayers are not required.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-
-                            DisclosureGroup("❓ Need help determining this?") {
-                                VStack(alignment: .leading, spacing: 5) {
-                                    Text("**Typical Ranges:**")
-                                    Text("• Light flow: 3-4 days")
-                                    Text("• Average flow: 5-7 days")
-                                    Text("• Heavy flow: 7-10 days")
-                                    Text("")
-                                    Text("**🤔 Not sure?** Use 6 days as a conservative estimate.")
-                                    Text("")
-                                    Text("**⚠️ Very irregular cycles?** Consider consulting a scholar for personalized guidance.")
-                                    Text("")
-                                    Text("📚 Learn about Islamic basis for estimation principles")
-                                        .font(.caption)
-                                        .foregroundColor(.blue)
-                                        .onTapGesture {
-                                            // TODO: Navigate to EducationView with specific section highlighted
-                                        }
-                                }
-                                .font(.caption)
-                            }
-                        }
-                    }
-                case .bulk:
-                    Section(header: Text("Bulk Duration")) {
-                        TextField("Years", value: $bulkYears, format: .number)
-                            .keyboardType(.numberPad)
-                        TextField("Months", value: $bulkMonths, format: .number)
-                            .keyboardType(.numberPad)
-                        TextField("Days", value: $bulkDays, format: .number)
-                            .keyboardType(.numberPad)
-                    }
-                case .custom:
-                    Section(header: Text("Custom Entry")) {
-                        TextField("Fajr", value: $customFajr, format: .number)
-                            .keyboardType(.numberPad)
-                        TextField("Dhuhr", value: $customDhuhr, format: .number)
-                            .keyboardType(.numberPad)
-                        TextField("Asr", value: $customAsr, format: .number)
-                            .keyboardType(.numberPad)
-                        TextField("Maghrib", value: $customMaghrib, format: .number)
-                            .keyboardType(.numberPad)
-                        TextField("Isha", value: $customIsha, format: .number)
-                            .keyboardType(.numberPad)
+                Picker("Calculation Method", selection: $calculationMethod) {
+                    ForEach(CalculationMethod.allCases, id: \.self) {
+                        Text($0.rawValue)
                     }
                 }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .background(.ultraThinMaterial)
+                .cornerRadius(12)
+
+                Form {
+                    switch calculationMethod {
+                    case .dateRange:
+                        dateRangeSection
+                    case .bulk:
+                        bulkDurationSection
+                    case .custom:
+                        customEntrySection
+                    }
+                }
+                .scrollContentBackground(.hidden) // Make form background transparent
+                .padding(.horizontal)
             }
+            .padding(.vertical)
+        }
+    }
+
+    private var dateRangeSection: some View {
+        Section(
+            header: Text("Date Range")
+                .font(.headline)
+                .foregroundColor(.primary)
+        ) {
+            DatePicker(
+                "Start Date",
+                selection: $startDate,
+                in: ...endDate,
+                displayedComponents: .date
+            )
+            DatePicker(
+                "End Date",
+                selection: $endDate,
+                in: startDate...,
+                displayedComponents: .date
+            )
+            
+            if gender == "Female" {
+                femaleSpecificSection
+            }
+        }
+        .listRowBackground(Color.white.opacity(0.5))
+    }
+
+    private var femaleSpecificSection: some View {
+        Section(header: Text("Menstrual Cycle Information")) {
+            HStack {
+                Text("Average Cycle Length")
+                Spacer()
+                TextField("Days", value: $averageCycleLength, format: .number)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width: 80)
+            }
+            
+            DisclosureGroup("Need help?") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("This helps us calculate your Qada prayers more accurately by excluding days when prayers are not required.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("**Typical Ranges:** Light flow: 3-4 days, Average flow: 5-7 days, Heavy flow: 7-10 days.")
+                    Text("**Not sure?** Use 6 days as a conservative estimate.")
+                    Text("**Irregular cycles?** Consider consulting a scholar.")
+                }
+                .font(.caption)
+            }
+        }
+        .listRowBackground(Color.white.opacity(0.5))
+    }
+
+    private var bulkDurationSection: some View {
+        Section(
+            header: Text("Bulk Duration")
+                .font(.headline)
+                .foregroundColor(.primary)
+        ) {
+            Stepper(value: $bulkYears, in: 0...100) {
+                Text("\(bulkYears) Years")
+            }
+            Stepper(value: $bulkMonths, in: 0...11) {
+                Text("\(bulkMonths) Months")
+            }
+            Stepper(value: $bulkDays, in: 0...30) {
+                Text("\(bulkDays) Days")
+            }
+        }
+        .listRowBackground(Color.white.opacity(0.5))
+    }
+
+    private var customEntrySection: some View {
+        Section(
+            header: Text("Custom Entry")
+                .font(.headline)
+                .foregroundColor(.primary)
+        ) {
+            stepperRow(label: "Fajr", binding: $customFajr)
+            stepperRow(label: "Dhuhr", binding: $customDhuhr)
+            stepperRow(label: "Asr", binding: $customAsr)
+            stepperRow(label: "Maghrib", binding: $customMaghrib)
+            stepperRow(label: "Isha", binding: $customIsha)
+        }
+        .listRowBackground(Color.white.opacity(0.5))
+    }
+
+    private func stepperRow(label: String, binding: Binding<Int>) -> some View {
+        Stepper(value: binding, in: 0...10000) { // Assuming a reasonable upper limit
+            Text("\(label): \(binding.wrappedValue)")
         }
     }
 }

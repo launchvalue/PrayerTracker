@@ -27,14 +27,14 @@ struct AppTabView: View {
                     Label("Statistics", systemImage: "chart.bar.fill")
                 }
 
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
-
             EducationView()
                 .tabItem {
                     Label("Learn", systemImage: "book.fill")
+                }
+
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
                 }
         }
     }

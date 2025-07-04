@@ -1,8 +1,10 @@
 import SwiftUI
 import SwiftData
+import GoogleSignIn
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var authManager: AuthenticationManager
     @Query private var userProfiles: [UserProfile]
     @Environment(\.dismiss) private var dismiss
 
@@ -43,7 +45,10 @@ struct SettingsView: View {
                     }
 
                     Section(header: Text("Danger Zone")) {
-                        Button("Delete All Data") {
+                        Button("Sign Out", action: {
+                            authManager.signOut()
+                        })
+                        Button("Delete All Data", role: .destructive) {
                             showingDeleteConfirmation = true
                         }
                     }

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A9F89FFE2E16C4590089ABED /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A9F89FFD2E16C4590089ABED /* GoogleSignIn */; };
+		A9F8A0002E16C4590089ABED /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A9F89FFF2E16C4590089ABED /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXBuildRule section */
 		A97C1CD02E0F4CB800FC179F /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
@@ -53,6 +58,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9F89FFE2E16C4590089ABED /* GoogleSignIn in Frameworks */,
+				A9F8A0002E16C4590089ABED /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				A92F32E02E0B63210060EE67 /* PrayerTracker */,
+				A980F1F32E15A44200672C91 /* Frameworks */,
 				A92F32DF2E0B63210060EE67 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -73,6 +81,13 @@
 				A92F32DE2E0B63210060EE67 /* PrayerTracker.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A980F1F32E15A44200672C91 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -96,6 +111,8 @@
 			);
 			name = PrayerTracker;
 			packageProductDependencies = (
+				A9F89FFD2E16C4590089ABED /* GoogleSignIn */,
+				A9F89FFF2E16C4590089ABED /* GoogleSignInSwift */,
 			);
 			productName = PrayerTracker;
 			productReference = A92F32DE2E0B63210060EE67 /* PrayerTracker.app */;
@@ -125,6 +142,9 @@
 			);
 			mainGroup = A92F32D52E0B63210060EE67;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A9F89FFC2E16C4590089ABED /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A92F32DF2E0B63210060EE67 /* Products */;
 			projectDirPath = "";
@@ -170,6 +190,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PrayerTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PrayerTracker;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -209,6 +231,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PrayerTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PrayerTracker;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -381,6 +405,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A9F89FFC2E16C4590089ABED /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A9F89FFD2E16C4590089ABED /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A9F89FFC2E16C4590089ABED /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		A9F89FFF2E16C4590089ABED /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A9F89FFC2E16C4590089ABED /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A92F32D62E0B63210060EE67 /* Project object */;
 }

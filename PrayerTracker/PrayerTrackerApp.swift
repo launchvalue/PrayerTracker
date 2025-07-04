@@ -7,26 +7,19 @@
 
 import SwiftUI
 import SwiftData
+import GoogleSignIn
 
 @main
 struct PrayerTrackerApp: App {
+    @StateObject private var authManager = AuthenticationManager()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(authManager)
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
-        .modelContainer(sharedModelContainer)
-    }
-
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([UserProfile.self, PrayerDebt.self, DailyLog.self])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            print("PrayerTrackerApp: ModelContainer created successfully.")
-            return container
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
 }

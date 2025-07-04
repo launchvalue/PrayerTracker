@@ -6,11 +6,8 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct OnboardingSummaryView: View {
-    @Environment(\.modelContext) private var modelContext
-
     let name: String
     let gender: String
     let calculationMethod: CalculationMethod
@@ -26,8 +23,7 @@ struct OnboardingSummaryView: View {
     let customIsha: Int
     let dailyGoal: Int
     let averageCycleLength: Int
-
-    
+    let onSave: () -> Void
 
     private var totalDebt: Int {
         switch calculationMethod {
@@ -61,85 +57,81 @@ struct OnboardingSummaryView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Summary")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding()
+        ZStack {
+            // Background with a subtle gradient
+            LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]), startPoint: .top, endPoint: .bottom)
+                .edgesIgnoringSafeArea(.all)
 
-            Form {
-                Section(header: Text("Profile")) {
-                    Text("Name: \(name)")
-                    Text("Gender: \(gender)")
+            VStack(spacing: 20) {
+                Text("Ready to Start?")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        summaryCard
+                        goalCard
+                    }
+                    .padding()
                 }
 
-                Section(header: Text("Prayer Debt")) {
-                    Text("Calculation Method: \(calculationMethod.rawValue)")
-                    Text("Total Debt: \(totalDebt) prayers")
-                }
-
-                Section(header: Text("Goal")) {
-                    Text("Daily Goal: \(dailyGoal) prayers")
-                    Text("Weekly Goal: \(dailyGoal * 7) prayers")
-                    Text("Estimated Completion: \(estimatedCompletionDate)")
-                }
-
-                Button(action: saveProfile) {
+                Button(action: onSave) {
                     Text("Let's Begin")
+                        .font(.headline)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.accentColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(15)
                 }
+                .padding(.horizontal)
             }
+            .padding(.vertical)
         }
     }
 
-    private func saveProfile() {
-        print("OnboardingSummaryView: saveProfile called.")
-        let fajrOwed: Int
-        let dhuhrOwed: Int
-        let asrOwed: Int
-        let maghribOwed: Int
-        let ishaOwed: Int
+    private var summaryCard: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            Text("Summary")
+                .font(.title2)
+                .fontWeight(.semibold)
 
-        switch calculationMethod {
-        case .dateRange:
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.day], from: startDate, to: endDate)
-            var debtDays = (components.day ?? 0) + 1 // +1 to include the end date
-
-            if gender == "Female" && averageCycleLength > 0 {
-                let approximateMonths = Double(debtDays) / 30.44 // Using 30.44 days per month for a more accurate average
-                let totalMenstrualDays = Int(approximateMonths * Double(averageCycleLength))
-                debtDays = max(0, debtDays - totalMenstrualDays)
-            }
-            fajrOwed = debtDays
-            dhuhrOwed = debtDays
-            asrOwed = debtDays
-            maghribOwed = debtDays
-            ishaOwed = debtDays
-        case .bulk:
-            let debt = (bulkYears * 354) + (bulkMonths * 30) + bulkDays
-            fajrOwed = debt
-            dhuhrOwed = debt
-            asrOwed = debt
-            maghribOwed = debt
-            ishaOwed = debt
-        case .custom:
-            fajrOwed = customFajr
-            dhuhrOwed = customDhuhr
-            asrOwed = customAsr
-            maghribOwed = customMaghrib
-            ishaOwed = customIsha
+            summaryRow(label: "Name", value: name)
+            summaryRow(label: "Gender", value: gender)
+            summaryRow(label: "Calculation Method", value: calculationMethod.rawValue)
+            summaryRow(label: "Total Prayer Debt", value: "\(totalDebt) prayers")
         }
+        .padding()
+        .background(.ultraThinMaterial)
+        .cornerRadius(20)
+    }
 
-        let prayerDebt = PrayerDebt(fajrOwed: fajrOwed, dhuhrOwed: dhuhrOwed, asrOwed: asrOwed, maghribOwed: maghribOwed, ishaOwed: ishaOwed)
-        let userProfile = UserProfile(name: name, dailyGoal: dailyGoal)
-        userProfile.debt = prayerDebt
-        modelContext.insert(userProfile)
-        print("OnboardingSummaryView: Attempting to save UserProfile: \(userProfile) with PrayerDebt: \(prayerDebt)")
-        do {
-            try modelContext.save()
-            print("OnboardingSummaryView: UserProfile saved successfully!")
-        } catch {
-            print("OnboardingSummaryView: Failed to save UserProfile: \(error.localizedDescription)")
+    private var goalCard: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            Text("Your Goal")
+                .font(.title2)
+                .fontWeight(.semibold)
+
+            summaryRow(label: "Daily Goal", value: "\(dailyGoal) prayers")
+            summaryRow(label: "Weekly Goal", value: "\(dailyGoal * 7) prayers")
+            summaryRow(label: "Estimated Completion", value: estimatedCompletionDate)
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .cornerRadius(20)
+    }
+
+    private func summaryRow(label: String, value: String) -> some View {
+        HStack {
+            Text(label)
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Spacer()
+            Text(value)
+                .font(.body)
+                .fontWeight(.medium)
         }
     }
 }
