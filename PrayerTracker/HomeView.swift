@@ -53,18 +53,7 @@ struct HomeView: View {
         return Double(prayersMadeUpThisWeek) / Double(userProfile.weeklyGoal)
     }
 
-    private func estimatedCompletionDate(profile: UserProfile) -> String {
-        if totalRemaining <= 0 {
-            return "All caught up!"
-        }
-        // Assuming user makes up 1 prayer debt per day in addition to daily prayers
-        if let completionDate = Calendar.current.date(byAdding: .day, value: totalRemaining, to: Date()) {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: completionDate)
-        }
-        return "Calculating..."
-    }
+    
 
     private func updatePrayerStatus(prayerName: String, log: DailyLog, profile: UserProfile) {
         switch prayerName {
@@ -111,7 +100,7 @@ struct HomeView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 15) {
+            VStack(alignment: .leading, spacing: 20) { // Increased spacing for better visual separation
                 // Custom Header: Dashboard Title and Greeting
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Dashboard")
@@ -131,49 +120,52 @@ struct HomeView: View {
                 )
                 .padding(.horizontal)
 
-                // Today's Log with Dates
-                HStack {
-                    Text("Today's Log")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    Spacer()
-                    VStack(alignment: .trailing) {
-                        Text(Date(), format: .dateTime.day().month().year())
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(hijriDate)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                // Today's Log Section
+                VStack(alignment: .leading, spacing: 15) { // Added VStack for Today's Log section
+                    HStack {
+                        Text("Today's Log")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                        Spacer()
+                        VStack(alignment: .trailing) {
+                            Text(Date(), format: .dateTime.day().month().year())
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text(hijriDate)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
-                }
-                .padding(.horizontal)
-                .padding(.top, 10)
+                    .padding(.horizontal) // Apply horizontal padding to the HStack
 
-                if let todayLog = todaysLog {
-                    VStack(spacing: 10) {
-                        PrayerCardView(prayerName: "Fajr", prayerOwed: $prayerDebt.fajrOwed, prayersCompletedToday: Binding(get: { todayLog.fajr }, set: { todayLog.fajr = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
+                    if let todayLog = todaysLog {
+                        VStack(spacing: 10) {
+                            PrayerCardView(prayerName: "Fajr", prayerOwed: $prayerDebt.fajrOwed, prayersCompletedToday: Binding(get: { todayLog.fajr }, set: { todayLog.fajr = $0 })) { prayerName in
+                                updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
+                            }
+                            PrayerCardView(prayerName: "Dhuhr", prayerOwed: $prayerDebt.dhuhrOwed, prayersCompletedToday: Binding(get: { todayLog.dhuhr }, set: { todayLog.dhuhr = $0 })) { prayerName in
+                                updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
+                            }
+                            PrayerCardView(prayerName: "Asr", prayerOwed: $prayerDebt.asrOwed, prayersCompletedToday: Binding(get: { todayLog.asr }, set: { todayLog.asr = $0 })) { prayerName in
+                                updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
+                            }
+                            PrayerCardView(prayerName: "Maghrib", prayerOwed: $prayerDebt.maghribOwed, prayersCompletedToday: Binding(get: { todayLog.maghrib }, set: { todayLog.maghrib = $0 })) { prayerName in
+                                updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
+                            }
+                            PrayerCardView(prayerName: "Isha", prayerOwed: $prayerDebt.ishaOwed, prayersCompletedToday: Binding(get: { todayLog.isha }, set: { todayLog.isha = $0 })) { prayerName in
+                                updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
+                            }
                         }
-                        PrayerCardView(prayerName: "Dhuhr", prayerOwed: $prayerDebt.dhuhrOwed, prayersCompletedToday: Binding(get: { todayLog.dhuhr }, set: { todayLog.dhuhr = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                        PrayerCardView(prayerName: "Asr", prayerOwed: $prayerDebt.asrOwed, prayersCompletedToday: Binding(get: { todayLog.asr }, set: { todayLog.asr = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                        PrayerCardView(prayerName: "Maghrib", prayerOwed: $prayerDebt.maghribOwed, prayersCompletedToday: Binding(get: { todayLog.maghrib }, set: { todayLog.maghrib = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                        PrayerCardView(prayerName: "Isha", prayerOwed: $prayerDebt.ishaOwed, prayersCompletedToday: Binding(get: { todayLog.isha }, set: { todayLog.isha = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical)
-                } else {
-                    Text("Error: Could not load or create daily log.")
                         .padding(.horizontal)
+                        .padding(.vertical)
+                    } else {
+                        Text("Error: Could not load or create daily log.")
+                            .padding(.horizontal)
+                    }
                 }
+                .padding(.bottom, 20) // Add padding to the bottom of the entire VStack
             }
+            .padding(.horizontal, 16) // Apply horizontal padding to the main VStack
         }
         .navigationBarHidden(true) // Hide default navigation bar
     }

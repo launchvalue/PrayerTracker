@@ -1,0 +1,7 @@
+Fix: Onboarding Button Redundancy
+
+This commit addresses the redundancy of navigation buttons in the onboarding flow:
+
+- **Welcome Screen:** Ensures only the "Get Started" button is visible on the Welcome screen (step 0).
+- **Summary Screen:** Displays both "Back" and "Let's Begin" buttons on the summary screen (step 4), with "Let's Begin" triggering the profile save.
+- **Intermediate Steps:** "Back" and "Continue" buttons are correctly displayed on intermediate onboarding steps (steps 1-3).
