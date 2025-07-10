@@ -8,7 +8,7 @@ class AuthenticationManager: ObservableObject {
 
     init() {
         // Check if there's a previous Google Sign-In when the app starts
-        restorePreviousSignIn()
+        // restorePreviousSignIn()
     }
 
     func restorePreviousSignIn() {

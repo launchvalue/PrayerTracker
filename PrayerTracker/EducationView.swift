@@ -20,8 +20,6 @@ struct EducationTopic: Identifiable, Hashable {
 // MARK: - Main View
 
 struct EducationView: View {
-    @State private var searchText = ""
-
     private let topics: [EducationTopic] = [
         EducationTopic(
             title: "Maliki Fiqh – Missed Prayers Remain a Debt",
@@ -55,14 +53,6 @@ struct EducationView: View {
         )
     ]
 
-    var filteredTopics: [EducationTopic] {
-        if searchText.isEmpty {
-            return topics
-        } else {
-            return topics.filter { $0.title.localizedCaseInsensitiveContains(searchText) || $0.content.localizedCaseInsensitiveContains(searchText) }
-        }
-    }
-
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -72,22 +62,12 @@ struct EducationView: View {
                         Text("Learn")
                             .font(.largeTitle.bold())
                         Text("Guidance on the principles of Qada prayers.")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color(red: 0.1, green: 0.4, blue: 0.2))
                     }
-                    .padding(.horizontal)
-
-                    // Search Bar
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.secondary)
-                        TextField("Search Topics", text: $searchText)
-                    }
-                    .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                     .padding(.horizontal)
 
                     // Content Cards
-                    ForEach(filteredTopics) {
+                    ForEach(topics) {
                         topic in
                         EducationCardView(topic: topic)
                             .padding(.horizontal)

@@ -21,8 +21,8 @@
     {
       "appearances" : [
         {
-          "appearance" : "luminosity",
-          "value" : "tinted"
+          "appearance" : "tint",
+          "value" : "monochrome"
         }
       ],
       "filename" : "prayertracker-iOS-TintedDark-1024x1024@1x.png",

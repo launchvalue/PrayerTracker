@@ -26,3 +26,7 @@ xcuserdata/
 Packages/
 *.xcodeproj
 *.xcworkspace
+
+# Xcode
+**/*.xcuserdata/
+
