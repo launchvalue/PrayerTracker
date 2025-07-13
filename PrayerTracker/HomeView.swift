@@ -7,25 +7,44 @@ struct HomeView: View {
     @Binding var prayerDebt: PrayerDebt
 
     @Query(sort: \DailyLog.date, order: .reverse) private var dailyLogs: [DailyLog]
-
-    private var todaysLog: DailyLog? {
-        if let log = dailyLogs.first(where: { Calendar.current.isDateInToday($0.date) }) {
-            return log
-        } else {
-            let newLog = DailyLog(date: Date().startOfDay)
-            modelContext.insert(newLog)
-            do {
-                try modelContext.save()
-                print("DailyLog created successfully in HomeView!")
-            } catch {
-                print("Failed to create DailyLog in HomeView: \(error.localizedDescription)")
-            }
-            return newLog
-        }
-    }
+    
+    // State variables for log management
+    @State private var todaysLog: DailyLog?
+    @State private var logCreationError: Error?
+    @State private var isCreatingLog = false
 
     private var totalRemaining: Int {
         prayerDebt.fajrOwed + prayerDebt.dhuhrOwed + prayerDebt.asrOwed + prayerDebt.maghribOwed + prayerDebt.ishaOwed
+    }
+    
+    // MARK: - Log Management Functions
+    
+    private func ensureTodaysLog() {
+        // Check if we already have today's log
+        if let existingLog = dailyLogs.first(where: { Calendar.current.isDateInToday($0.date) }) {
+            todaysLog = existingLog
+            return
+        }
+        
+        // Prevent duplicate creation attempts
+        guard !isCreatingLog else { return }
+        isCreatingLog = true
+        
+        // Create new log with proper error handling
+        let newLog = DailyLog(date: Date().startOfDay)
+        modelContext.insert(newLog)
+        
+        do {
+            try modelContext.save()
+            todaysLog = newLog
+            print("DailyLog created successfully in HomeView!")
+        } catch {
+            logCreationError = error
+            modelContext.rollback() // Rollback failed transaction
+            print("Failed to create DailyLog in HomeView: \(error.localizedDescription)")
+        }
+        
+        isCreatingLog = false
     }
 
     private var prayersMadeUpThisWeek: Int {
@@ -159,8 +178,34 @@ struct HomeView: View {
                         .padding(.horizontal)
                         .padding(.vertical)
                     } else {
-                        Text("Error: Could not load or create daily log.")
-                            .padding(.horizontal)
+                        VStack(spacing: 16) {
+                            if isCreatingLog {
+                                VStack(spacing: 8) {
+                                    ProgressView()
+                                        .scaleEffect(1.2)
+                                    Text("Creating today's prayer log...")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                            } else {
+                                VStack(spacing: 8) {
+                                    Image(systemName: "exclamationmark.triangle")
+                                        .font(.title2)
+                                        .foregroundColor(.orange)
+                                    Text("Unable to load today's prayer log")
+                                        .font(.headline)
+                                    Text("Please try again or check your connection")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    Button("Retry") {
+                                        ensureTodaysLog()
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 40)
                     }
                 }
                 .padding(.bottom, 20) // Add padding to the bottom of the entire VStack
@@ -168,6 +213,17 @@ struct HomeView: View {
             .padding(.horizontal, 16) // Apply horizontal padding to the main VStack
         }
         .navigationBarHidden(true) // Hide default navigation bar
+        .onAppear {
+            ensureTodaysLog()
+        }
+        .alert("Error Creating Daily Log", isPresented: Binding(
+            get: { logCreationError != nil },
+            set: { _ in logCreationError = nil }
+        )) {
+            Button("OK") { }
+        } message: {
+            Text(logCreationError?.localizedDescription ?? "An unknown error occurred while creating today's prayer log.")
+        }
     }
 
     private var hijriDate: String {
