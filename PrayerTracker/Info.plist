@@ -19,8 +19,6 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
-	<key>CFBundleIconName</key>
-	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>PrayerTracker</string>
 </dict>
