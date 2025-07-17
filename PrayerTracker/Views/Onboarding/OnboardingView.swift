@@ -16,6 +16,7 @@ enum CalculationMethod: String, CaseIterable {
 }
 
 struct OnboardingView: View {
+    let userID: String
     @Environment(\.modelContext) private var modelContext
     @State private var currentStep: Int = 0
     @State private var name: String = ""
@@ -166,17 +167,17 @@ struct OnboardingView: View {
             ishaOwed = customIsha
         }
 
-        let prayerDebt = PrayerDebt(fajrOwed: fajrOwed, dhuhrOwed: dhuhrOwed, asrOwed: asrOwed, maghribOwed: maghribOwed, ishaOwed: ishaOwed)
-        let userProfile = UserProfile(name: name, dailyGoal: dailyGoal)
+        let prayerDebt = PrayerDebt(userID: userID, fajrOwed: fajrOwed, dhuhrOwed: dhuhrOwed, asrOwed: asrOwed, maghribOwed: maghribOwed, ishaOwed: ishaOwed)
+        let userProfile = UserProfile(userID: userID, name: name, dailyGoal: dailyGoal)
         userProfile.debt = prayerDebt
         modelContext.insert(userProfile)
-        print("OnboardingView: Attempting to save UserProfile: \(userProfile) with PrayerDebt: \(prayerDebt)")
+        print("OnboardingView: Attempting to save UserProfile: \(userProfile) with PrayerDebt: \(prayerDebt) for userID: \(userID)")
         do {
             try modelContext.save()
-            print("OnboardingView: UserProfile saved successfully!")
+            print("OnboardingView: UserProfile saved successfully for userID: \(userID)!")
             profileSaved = true // Set flag to true after successful save
         } catch {
-            print("OnboardingView: Failed to save UserProfile: \(error.localizedDescription)")
+            print("OnboardingView: Failed to save UserProfile for userID \(userID): \(error.localizedDescription)")
         }
     }
 }

@@ -9,24 +9,71 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// MARK: - Islamic Calendar Type Enum
+
+enum IslamicCalendarType: String, CaseIterable {
+    case ummAlQura = "islamicUmmAlQura"
+    case civil = "islamic"
+    case tabular = "islamicTabular"
+    
+    var displayName: String {
+        switch self {
+        case .ummAlQura:
+            return "Umm al-Qura (Saudi Arabia)"
+        case .civil:
+            return "Islamic Civil Calendar"
+        case .tabular:
+            return "Islamic Tabular Calendar"
+        }
+    }
+    
+    var calendarIdentifier: Calendar.Identifier {
+        switch self {
+        case .ummAlQura:
+            return .islamicUmmAlQura
+        case .civil:
+            return .islamic
+        case .tabular:
+            return .islamicTabular
+        }
+    }
+}
+
 // MARK: - UserProfile Model
 
 /// Represents the user's profile, including their name, goals, and prayer debt.
 @Model
 final class UserProfile {
+    var userID: String = "" // Google Sign-In user ID for data isolation
     var name: String = ""
     var dailyGoal: Int = 5
     var streak: Int = 0
     var longestStreak: Int = 0
+    var lastStreakUpdate: Date?
+    var lastCompletedDate: Date?
+    private var islamicCalendarTypeRaw: String = "islamicUmmAlQura" // Default to Umm al-Qura
+    
+    /// User's preferred Islamic calendar type with type safety
+    var islamicCalendarType: IslamicCalendarType {
+        get {
+            return IslamicCalendarType(rawValue: islamicCalendarTypeRaw) ?? .ummAlQura
+        }
+        set {
+            islamicCalendarTypeRaw = newValue.rawValue
+        }
+    }
     
     @Relationship(deleteRule: .cascade, inverse: \PrayerDebt.userProfile) var debt: PrayerDebt?
 
     var weeklyGoal: Int { dailyGoal * 7 }
     
-    init(name: String = "", dailyGoal: Int = 5, streak: Int = 0) {
+    init(userID: String = "", name: String = "", dailyGoal: Int = 5, streak: Int = 0) {
+        self.userID = userID
         self.name = name
         self.dailyGoal = dailyGoal
         self.streak = streak
+        self.lastStreakUpdate = nil
+        self.lastCompletedDate = nil
     }
 }
 
@@ -35,6 +82,7 @@ final class UserProfile {
 /// Represents the user's prayer debt.
 @Model
 final class PrayerDebt {
+    var userID: String = "" // Google Sign-In user ID for data isolation
     var fajrOwed: Int = 0
     var initialFajrOwed: Int = 0
     var dhuhrOwed: Int = 0
@@ -51,7 +99,8 @@ final class PrayerDebt {
         initialFajrOwed + initialDhuhrOwed + initialAsrOwed + initialMaghribOwed + initialIshaOwed
     }
     
-    init(fajrOwed: Int = 0, dhuhrOwed: Int = 0, asrOwed: Int = 0, maghribOwed: Int = 0, ishaOwed: Int = 0) {
+    init(userID: String = "", fajrOwed: Int = 0, dhuhrOwed: Int = 0, asrOwed: Int = 0, maghribOwed: Int = 0, ishaOwed: Int = 0) {
+        self.userID = userID
         self.fajrOwed = fajrOwed
         self.initialFajrOwed = fajrOwed
         self.dhuhrOwed = dhuhrOwed
@@ -70,6 +119,7 @@ final class PrayerDebt {
 /// Represents a daily log of completed prayers.
 @Model
 final class DailyLog {
+    var userID: String = "" // Google Sign-In user ID for data isolation
     var date: Date = Date()
     var fajr: Int = 0
     var dhuhr: Int = 0
@@ -91,7 +141,8 @@ final class DailyLog {
         Calendar.current.startOfDay(for: date)
     }
     
-    init(date: Date = Date(), fajr: Int = 0, dhuhr: Int = 0, asr: Int = 0, maghrib: Int = 0, isha: Int = 0, notes: String = "") {
+    init(userID: String = "", date: Date = Date(), fajr: Int = 0, dhuhr: Int = 0, asr: Int = 0, maghrib: Int = 0, isha: Int = 0, notes: String = "") {
+        self.userID = userID
         self.date = date
         self.fajr = fajr
         self.dhuhr = dhuhr

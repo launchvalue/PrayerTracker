@@ -10,25 +10,18 @@ import SwiftData
 import GoogleSignIn
 
 struct ContentView: View {
-    @EnvironmentObject private var authManager: AuthenticationManager
-
-    private var currentUserID: String? {
-        GIDSignIn.sharedInstance.currentUser?.userID
-    }
-
+    @EnvironmentObject var authManager: AuthenticationManager
+    
     var body: some View {
-        Group {
-            if authManager.isSignedIn {
-                AuthenticatedView()
-                    .id(currentUserID)
-            } else {
-                SignInView()
-                    .environmentObject(authManager)
-            }
+        if authManager.isSignedIn {
+            AuthenticatedView()
+        } else {
+            SignInView()
         }
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(AuthenticationManager())
 }

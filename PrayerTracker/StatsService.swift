@@ -7,21 +7,34 @@ class StatsService {
     private var modelContext: ModelContext
     var logs: [DailyLog] = []
     var userProfile: UserProfile? = nil
+    private let userID: String
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, userID: String) {
         self.modelContext = modelContext
+        self.userID = userID
         fetchData()
     }
 
     func fetchData() {
         do {
-            let descriptor = FetchDescriptor<DailyLog>(sortBy: [SortDescriptor(\.date, order: .reverse)])
+            // Filter DailyLog by userID for data isolation
+            let descriptor = FetchDescriptor<DailyLog>(
+                predicate: #Predicate<DailyLog> { log in
+                    log.userID == userID
+                },
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
             logs = try modelContext.fetch(descriptor)
 
-            let profileDescriptor = FetchDescriptor<UserProfile>()
+            // Filter UserProfile by userID for data isolation
+            let profileDescriptor = FetchDescriptor<UserProfile>(
+                predicate: #Predicate<UserProfile> { profile in
+                    profile.userID == userID
+                }
+            )
             userProfile = try modelContext.fetch(profileDescriptor).first
         } catch {
-            print("Failed to fetch data: \(error)")
+            print("Failed to fetch data for user \(userID): \(error)")
         }
     }
 

@@ -17,12 +17,12 @@ struct AppTabView: View {
                     Label("Dashboard", systemImage: "house.fill")
                 }
 
-            CalendarTabView()
+            CalendarTabView(userID: profile.userID)
                 .tabItem {
                     Label("Calendar", systemImage: "calendar")
                 }
 
-            StatsView()
+            StatsView(userID: profile.userID)
                 .tabItem {
                     Label("Statistics", systemImage: "chart.bar.fill")
                 }
@@ -32,7 +32,7 @@ struct AppTabView: View {
                     Label("Learn", systemImage: "book.fill")
                 }
 
-            SettingsView()
+            SettingsView(userID: profile.userID)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }

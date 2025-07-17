@@ -5,21 +5,24 @@ import Combine
 
 class AuthenticationManager: ObservableObject {
     @Published var isSignedIn: Bool = false
+    @Published var currentUserID: String? = nil
 
     init() {
         // Check if there's a previous Google Sign-In when the app starts
-        // restorePreviousSignIn()
+        restorePreviousSignIn()
     }
 
     func restorePreviousSignIn() {
         GIDSignIn.sharedInstance.restorePreviousSignIn { [weak self] user, error in
             if let user = user, error == nil {
-                print("Restored previous sign-in for user: \(user.profile?.name ?? "Unknown")")
+                print("Restored previous sign-in for user: \(user.profile?.name ?? "Unknown") with ID: \(user.userID ?? "Unknown ID")")
                 DispatchQueue.main.async {
+                    self?.currentUserID = user.userID
                     self?.isSignedIn = true
                 }
             } else {
                 DispatchQueue.main.async {
+                    self?.currentUserID = nil
                     self?.isSignedIn = false
                 }
             }
@@ -48,18 +51,28 @@ class AuthenticationManager: ObservableObject {
                 return
             }
             
-            print("Google Sign-In successful for user: \(result.user.profile?.name ?? "Unknown")")
+            print("Google Sign-In successful for user: \(result.user.profile?.name ?? "Unknown") with ID: \(result.user.userID ?? "Unknown ID")")
             
             DispatchQueue.main.async {
+                self.currentUserID = result.user.userID
                 self.isSignedIn = true
             }
         }
     }
 
     func signOut() {
+        let previousUserID = self.currentUserID
         GIDSignIn.sharedInstance.signOut()
         DispatchQueue.main.async {
+            self.currentUserID = nil
             self.isSignedIn = false
+            
+            // Post notification for cleanup
+            NotificationCenter.default.post(
+                name: NSNotification.Name("UserSignedOut"),
+                object: nil,
+                userInfo: ["previousUserID": previousUserID ?? "unknown"]
+            )
         }
     }
 }

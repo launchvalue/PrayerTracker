@@ -5,6 +5,19 @@ import Charts
 struct StatsView: View {
     @Environment(StatsService.self) private var statsService
     @Query private var userProfiles: [UserProfile]
+    
+    let userID: String
+    
+    init(userID: String) {
+        self.userID = userID
+        
+        // Filter UserProfile by userID for data isolation
+        self._userProfiles = Query(
+            filter: #Predicate<UserProfile> { profile in
+                profile.userID == userID
+            }
+        )
+    }
 
     var body: some View {
         NavigationStack {
@@ -92,7 +105,7 @@ struct StatsView: View {
                         }
 
                         // History Deep-Link
-                        NavigationLink(destination: HistoryView()) {
+                        NavigationLink(destination: HistoryView(userID: userID)) {
                             HStack {
                                 Image(systemName: "clock.arrow.circlepath")
                                 Text("View Full History")
@@ -126,7 +139,7 @@ struct StatsView: View {
 }
 
 #Preview {
-    StatsView()
+    StatsView(userID: "preview-user")
         .modelContainer(for: [UserProfile.self, PrayerDebt.self, DailyLog.self])
-        .environment(StatsService(modelContext: ModelContext(try! ModelContainer(for: UserProfile.self, PrayerDebt.self, DailyLog.self))))
+        .environment(StatsService(modelContext: ModelContext(try! ModelContainer(for: UserProfile.self, PrayerDebt.self, DailyLog.self)), userID: "preview-user"))
 }
