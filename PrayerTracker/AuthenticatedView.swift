@@ -1,6 +1,7 @@
 
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct AuthenticatedView: View {
     @Environment(\.modelContext) private var modelContext
@@ -37,8 +38,11 @@ struct UserSpecificContentView: View {
         if let profile = profiles.first {
             AppTabView(profile: profile)
         } else {
-            OnboardingView(userID: userID)
-                .environment(\.modelContext, modelContext)
+            OnboardingView(userID: userID) {
+                // Completion callback - this shouldn't be called since we're using the new architecture
+                print("AuthenticatedView: OnboardingView completed - this shouldn't happen in new architecture")
+            }
+            .environment(\.modelContext, modelContext)
         }
     }
 }

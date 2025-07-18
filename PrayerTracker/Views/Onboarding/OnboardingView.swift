@@ -17,6 +17,7 @@ enum CalculationMethod: String, CaseIterable {
 
 struct OnboardingView: View {
     let userID: String
+    let onComplete: () -> Void
     @Environment(\.modelContext) private var modelContext
     @State private var currentStep: Int = 0
     @State private var name: String = ""
@@ -176,6 +177,11 @@ struct OnboardingView: View {
             try modelContext.save()
             print("OnboardingView: UserProfile saved successfully for userID: \(userID)!")
             profileSaved = true // Set flag to true after successful save
+            
+            // Notify the main app that onboarding is complete
+            DispatchQueue.main.async {
+                onComplete()
+            }
         } catch {
             print("OnboardingView: Failed to save UserProfile for userID \(userID): \(error.localizedDescription)")
         }

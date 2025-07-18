@@ -6,24 +6,30 @@ import Combine
 class AuthenticationManager: ObservableObject {
     @Published var isSignedIn: Bool = false
     @Published var currentUserID: String? = nil
+    @Published var isAuthenticationComplete: Bool = false
 
     init() {
         // Check if there's a previous Google Sign-In when the app starts
         restorePreviousSignIn()
     }
 
-    func restorePreviousSignIn() {
+    func restorePreviousSignIn(completion: (() -> Void)? = nil) {
         GIDSignIn.sharedInstance.restorePreviousSignIn { [weak self] user, error in
             if let user = user, error == nil {
                 print("Restored previous sign-in for user: \(user.profile?.name ?? "Unknown") with ID: \(user.userID ?? "Unknown ID")")
                 DispatchQueue.main.async {
                     self?.currentUserID = user.userID
                     self?.isSignedIn = true
+                    self?.isAuthenticationComplete = true
+                    completion?()
                 }
             } else {
+                print("No previous sign-in found or error: \(error?.localizedDescription ?? "Unknown error")")
                 DispatchQueue.main.async {
                     self?.currentUserID = nil
                     self?.isSignedIn = false
+                    self?.isAuthenticationComplete = true
+                    completion?()
                 }
             }
         }

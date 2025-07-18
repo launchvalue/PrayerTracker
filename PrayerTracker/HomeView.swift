@@ -256,6 +256,11 @@ struct HomeView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
+            // Clear any existing model object references to prevent context invalidation
+            todaysLog = nil
+            logCreationError = nil
+            isCreatingLog = false
+            
             ensureTodaysLog()
             
             // Perform streak management tasks

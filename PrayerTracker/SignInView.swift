@@ -82,6 +82,7 @@ struct SignInView: View {
                                 // User successfully signed in with Apple ID
                                 print("Apple Sign-In successful for user: \(appleIDCredential.user)")
                                 DispatchQueue.main.async {
+                                    authManager.currentUserID = appleIDCredential.user
                                     authManager.isSignedIn = true
                                 }
                             default:

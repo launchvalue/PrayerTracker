@@ -10,107 +10,152 @@ import SwiftUI
 import SwiftData
 import GoogleSignIn
 
-enum ModelContainerState {
+enum AppState {
     case loading
-    case ready(ModelContainer)
+    case signIn
+    case onboarding(userID: String)
+    case dashboard(userID: String)
     case error(Error)
 }
 
 @main
 struct PrayerTrackerApp: App {
     @StateObject private var authManager = AuthenticationManager()
-    @State private var containerState: ModelContainerState = .loading
+    @State private var appState: AppState = .loading
     
-    private let schema = Schema([
-        UserProfile.self,
-        PrayerDebt.self,
-        DailyLog.self
-    ])
+    // Single ModelContainer for the entire app lifecycle - no switching!
+    private let modelContainer: ModelContainer = {
+        let schema = Schema([
+            UserProfile.self,
+            PrayerDebt.self,
+            DailyLog.self
+        ])
+        
+        do {
+            // Use a single database file for all users
+            let url = URL.applicationSupportDirectory.appending(path: "PrayerTracker.store")
+            let configuration = ModelConfiguration(schema: schema, url: url)
+            let container = try ModelContainer(for: schema, configurations: [configuration])
+            print("Created single ModelContainer with database: PrayerTracker.store")
+            return container
+        } catch {
+            print("Failed to create ModelContainer: \(error)")
+            // Fallback to in-memory container
+            do {
+                let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+                let container = try ModelContainer(for: schema, configurations: [configuration])
+                print("Created fallback in-memory container")
+                return container
+            } catch {
+                fatalError("Failed to create ModelContainer: \(error)")
+            }
+        }
+    }()
     
     var body: some Scene {
         WindowGroup {
             Group {
-                switch containerState {
+                switch appState {
                 case .loading:
                     ProgressView("Loading...")
                         .environmentObject(authManager)
-                case .ready(let container):
-                    ContentView()
-                        .modelContainer(container)
+                        
+                case .signIn:
+                    SignInView()
                         .environmentObject(authManager)
-                        .id(authManager.currentUserID ?? "default")
+                        
+                case .onboarding(let userID):
+                    OnboardingView(userID: userID) {
+                        Task {
+                            await determineAppState()
+                        }
+                    }
+                    .environmentObject(authManager)
+                        
+                case .dashboard(let userID):
+                    DashboardWrapperView(userID: userID)
+                        .environmentObject(authManager)
+                        
                 case .error(let error):
                     VStack {
-                        Text("Error loading data")
+                        Text("Error loading app")
                             .foregroundColor(.red)
                         Text(error.localizedDescription)
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Button("Retry") {
                             Task {
-                                await createModelContainer()
+                                await determineAppState()
                             }
                         }
                     }
                     .environmentObject(authManager)
                 }
             }
+            .modelContainer(modelContainer) // Single container for entire app
             .onOpenURL { url in
                 GIDSignIn.sharedInstance.handle(url)
             }
             .onAppear {
                 configureGoogleSignIn()
-                authManager.restorePreviousSignIn()
-                Task {
-                    await createModelContainer()
+                authManager.restorePreviousSignIn {
+                    Task {
+                        await determineAppState()
+                    }
                 }
             }
             .onChange(of: authManager.currentUserID) { _, _ in
                 Task {
-                    await createModelContainer()
+                    await determineAppState()
+                }
+            }
+            .onChange(of: authManager.isAuthenticationComplete) { _, isComplete in
+                if isComplete {
+                    Task {
+                        await determineAppState()
+                    }
                 }
             }
         }
     }
     
-    private func createModelContainer() async {
-        let userID = authManager.currentUserID ?? "default"
-        let fileName = "\(userID).store"
+    @MainActor
+    private func determineAppState() async {
+        print("Determining app state...")
         
-        print("Creating ModelContainer for user: \(userID) with database: \(fileName)")
+        // Set loading state
+        appState = .loading
         
-        // Set loading state to prevent views from accessing old model instances
-        await MainActor.run {
-            containerState = .loading
+        // Small delay to ensure UI updates
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        
+        guard let userID = authManager.currentUserID else {
+            print("No authenticated user, showing sign-in")
+            appState = .signIn
+            return
         }
         
+        print("Authenticated user: \(userID)")
+        
+        // Check if user profile exists in database
         do {
-            let url = URL.applicationSupportDirectory.appending(path: fileName)
-            let configuration = ModelConfiguration(schema: schema, url: url)
-            let container = try ModelContainer(for: schema, configurations: [configuration])
+            let context = modelContainer.mainContext
+            let predicate = #Predicate<UserProfile> { profile in
+                profile.userID == userID
+            }
+            let descriptor = FetchDescriptor<UserProfile>(predicate: predicate)
+            let profiles = try context.fetch(descriptor)
             
-            // Set the new container state on main thread
-            await MainActor.run {
-                containerState = .ready(container)
+            if profiles.isEmpty {
+                print("New user, showing onboarding")
+                appState = .onboarding(userID: userID)
+            } else {
+                print("Returning user, showing dashboard")
+                appState = .dashboard(userID: userID)
             }
-            print("Successfully created ModelContainer for user: \(userID)")
         } catch {
-            print("Failed to create ModelContainer for user \(userID): \(error)")
-            // Fallback to in-memory container
-            do {
-                let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-                let container = try ModelContainer(for: schema, configurations: [configuration])
-                
-                await MainActor.run {
-                    containerState = .ready(container)
-                }
-                print("Created fallback in-memory container for user: \(userID)")
-            } catch {
-                print("Failed to create fallback in-memory container: \(error)")
-                await MainActor.run {
-                    containerState = .error(error)
-                }
-            }
+            print("Error checking user profile: \(error)")
+            appState = .error(error)
         }
     }
     

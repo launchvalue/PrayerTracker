@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import GoogleSignIn
 
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthenticationManager
