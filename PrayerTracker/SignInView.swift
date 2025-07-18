@@ -51,24 +51,6 @@ struct SignInView: View {
                 }
                 .padding(.horizontal, 20)
 
-                Button(action: {
-                    authManager.signIn()
-                }) {
-                    HStack {
-                        Image(systemName: "g.circle.fill")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                        Text("Sign Up with Google")
-                            .fontWeight(.semibold)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                }
-                .padding(.horizontal, 20)
-
                 SignInWithAppleButton(
                     .signIn,
                     onRequest: { request in
