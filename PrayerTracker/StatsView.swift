@@ -22,7 +22,30 @@ struct StatsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                if let profile = userProfiles.first {
+                if statsService.isLoading {
+                    VStack {
+                        ProgressView("Loading statistics...")
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if statsService.hasError {
+                    VStack {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.largeTitle)
+                            .foregroundColor(.orange)
+                        Text("Unable to load statistics")
+                            .font(.headline)
+                        Text("Please try again")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Button("Retry") {
+                            statsService.fetchData()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding(.top)
+                    }
+                    .padding()
+                } else if let profile = userProfiles.first {
                     VStack(spacing: 15) {
                         // Overall Completion Card
                         VStack {

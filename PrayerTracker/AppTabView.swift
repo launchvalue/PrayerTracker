@@ -6,11 +6,25 @@
 //
 
 import SwiftUI
+import SwiftData
+import Foundation
 
 struct AppTabView: View {
     let profile: UserProfile
+    @Environment(\.modelContext) private var modelContext
+    @State private var statsService: StatsService?
 
     var body: some View {
+        // Ensure statsService is initialized for the current user
+        let currentStatsService: StatsService = {
+            if let existingService = statsService, existingService.userID == profile.userID {
+                return existingService
+            } else {
+                let newService = StatsService(modelContext: modelContext, userID: profile.userID)
+                statsService = newService
+                return newService
+            }
+        }()
         TabView {
             DashboardView(profile: profile)
                 .tabItem {
@@ -37,6 +51,7 @@ struct AppTabView: View {
                     Label("Settings", systemImage: "gear")
                 }
         }
+        .environment(currentStatsService)
     }
 }
 

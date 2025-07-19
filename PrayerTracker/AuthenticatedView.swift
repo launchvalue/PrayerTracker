@@ -6,13 +6,28 @@ import Foundation
 struct AuthenticatedView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject var authManager: AuthenticationManager
+    @State private var statsService: StatsService?
     
     var body: some View {
         let currentUserID = authManager.currentUserID ?? "default"
         
+        // Create a computed property to ensure we always have a valid statsService
+        let currentStatsService: StatsService = {
+            if let existingService = statsService, existingService.userID == currentUserID {
+                return existingService
+            } else {
+                let newService = StatsService(modelContext: modelContext, userID: currentUserID)
+                statsService = newService
+                return newService
+            }
+        }()
+        
         // Use user-specific query to ensure data isolation
         UserSpecificContentView(userID: currentUserID)
-            .environment(StatsService(modelContext: modelContext, userID: currentUserID))
+            .environment(currentStatsService)
+            .onChange(of: currentUserID) { _, newUserID in
+                statsService = StatsService(modelContext: modelContext, userID: newUserID)
+            }
     }
 }
 
