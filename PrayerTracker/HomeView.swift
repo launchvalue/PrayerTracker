@@ -88,6 +88,11 @@ struct HomeView: View {
         return Double(prayersMadeUpThisWeek) / Double(userProfile.weeklyGoal)
     }
 
+    /// Adaptive grid configuration for larger screens
+    private var gridColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: 320), spacing: DesignSystem.Layout.gridSpacing)]
+    }
+
     
 
     private func updatePrayerStatus(prayerName: String, log: DailyLog, profile: UserProfile) {
@@ -228,7 +233,7 @@ struct HomeView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+            LazyVGrid(columns: gridColumns, alignment: .leading, spacing: DesignSystem.Layout.gridSpacing) {
                 // Header Section
                 HeaderView(
                     userName: userProfile.name,
@@ -252,7 +257,8 @@ struct HomeView: View {
                     onRetry: ensureTodaysLog
                 )
             }
-            .padding(.bottom, DesignSystem.Spacing.lg)
+            .adaptiveContentMargin()
+            .padding(.bottom, DesignSystem.Spacing.xl)
         }
         .navigationBarHidden(true)
         .onAppear {
