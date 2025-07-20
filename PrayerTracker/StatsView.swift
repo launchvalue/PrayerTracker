@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import Charts
 
 struct StatsView: View {
     @Environment(StatsService.self) private var statsService
@@ -29,7 +28,7 @@ struct StatsView: View {
                         GridRow {
                             VStack {
                                 ProgressView("Loading statistics...")
-                                    .padding()
+                                    .adaptivePadding()
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .gridCellColumns(horizontalSizeClass == .regular ? 2 : 1)
