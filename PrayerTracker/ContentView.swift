@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @EnvironmentObject var authManager: AuthenticationManager
+    @Environment(AuthenticationManager.self) private var authManager
     
     var body: some View {
         if authManager.isSignedIn {
@@ -22,5 +22,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(AuthenticationManager())
+        .environment(AuthenticationManager())
 }

@@ -5,7 +5,7 @@ import Foundation
 
 struct AuthenticatedView: View {
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject var authManager: AuthenticationManager
+    @Environment(AuthenticationManager.self) private var authManager
     @State private var statsService: StatsService?
     
     var body: some View {

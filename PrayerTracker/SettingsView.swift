@@ -4,7 +4,7 @@ import GoogleSignIn
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var authManager: AuthenticationManager
+    @Environment(AuthenticationManager.self) private var authManager
     @Query private var userProfiles: [UserProfile]
     @Environment(\.dismiss) private var dismiss
 

@@ -1,13 +1,13 @@
 
 import SwiftUI
 import GoogleSignIn
-import Combine
 
-class AuthenticationManager: ObservableObject {
-    @Published var isSignedIn: Bool = false
-    @Published var currentUserID: String? = nil
-    @Published var isAuthenticationComplete: Bool = false
-    @Published var shouldRefreshAppState: Bool = false
+@Observable
+class AuthenticationManager {
+    var isSignedIn: Bool = false
+    var currentUserID: String? = nil
+    var isAuthenticationComplete: Bool = false
+    var shouldRefreshAppState: Bool = false
 
     init() {
         // Check if there's a previous Google Sign-In when the app starts

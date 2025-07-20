@@ -13,7 +13,7 @@ struct DashboardView: View {
     
     var body: some View {
         if let debt = profile.debt {
-            HomeView(userProfile: profile, prayerDebt: .constant(debt))
+            HomeView(userProfile: profile, prayerDebt: debt)
         } else {
             Text("No debt profile found.")
         }

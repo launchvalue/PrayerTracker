@@ -20,7 +20,7 @@ enum AppState {
 
 @main
 struct PrayerTrackerApp: App {
-    @StateObject private var authManager = AuthenticationManager()
+    @State private var authManager = AuthenticationManager()
     @State private var appState: AppState = .loading
     
     // Single ModelContainer for the entire app lifecycle - no switching!
@@ -58,11 +58,11 @@ struct PrayerTrackerApp: App {
                 switch appState {
                 case .loading:
                     ProgressView("Loading...")
-                        .environmentObject(authManager)
+                        .environment(authManager)
                         
                 case .signIn:
                     SignInView()
-                        .environmentObject(authManager)
+                        .environment(authManager)
                         
                 case .onboarding(let userID):
                     OnboardingView(userID: userID) {
@@ -70,11 +70,11 @@ struct PrayerTrackerApp: App {
                             await determineAppState()
                         }
                     }
-                    .environmentObject(authManager)
+                    .environment(authManager)
                         
                 case .dashboard(let userID):
                     DashboardWrapperView(userID: userID)
-                        .environmentObject(authManager)
+                        .environment(authManager)
                         
                 case .error(let error):
                     VStack {
@@ -89,7 +89,7 @@ struct PrayerTrackerApp: App {
                             }
                         }
                     }
-                    .environmentObject(authManager)
+                    .environment(authManager)
                 }
             }
             .modelContainer(modelContainer) // Single container for entire app
