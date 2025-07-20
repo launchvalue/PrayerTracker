@@ -42,7 +42,7 @@ enum IslamicCalendarType: String, CaseIterable {
 // MARK: - UserProfile Model
 
 /// Represents the user's profile, including their name, goals, and prayer debt.
-@Model @Observable
+@Model
 final class UserProfile {
     var userID: String = "" // Google Sign-In user ID for data isolation
     var name: String = ""
@@ -80,7 +80,7 @@ final class UserProfile {
 // MARK: - PrayerDebt Model
 
 /// Represents the user's prayer debt.
-@Model @Observable
+@Model
 final class PrayerDebt {
     var userID: String = "" // Google Sign-In user ID for data isolation
     var fajrOwed: Int = 0
@@ -117,7 +117,7 @@ final class PrayerDebt {
 // MARK: - DailyLog Model
 
 /// Represents a daily log of completed prayers.
-@Model @Observable
+@Model
 final class DailyLog {
     var userID: String = "" // Google Sign-In user ID for data isolation
     var date: Date = Date()
