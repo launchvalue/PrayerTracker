@@ -227,32 +227,40 @@ struct HomeView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                // Header Section
-                HeaderView(
-                    userName: userProfile.name,
-                    hijriDate: hijriDate
-                )
-                
-                // Weekly Progress Section
-                WeeklyProgressView(
-                    userProfile: userProfile,
-                    currentWeekLogs: currentWeekLogs
-                )
-                
-                // Today's Log Section with Loading States
-                TodaysLogView(
-                    todaysLog: todaysLog,
-                    isLoading: isCreatingLog,
-                    error: logCreationError,
-                    prayerDebt: prayerDebt,
-                    userProfile: userProfile,
-                    onPrayerUpdate: updatePrayerStatus,
-                    onRetry: ensureTodaysLog
-                )
+        AdaptiveScrollView {
+            Grid(
+                horizontalSpacing: DesignSystem.Layout.gridSpacing,
+                verticalSpacing: DesignSystem.Layout.gridSpacing
+            ) {
+                GridRow {
+                    HeaderView(
+                        userName: userProfile.name,
+                        hijriDate: hijriDate
+                    )
+                    .gridCellColumns(2)
+                }
+
+                GridRow {
+                    WeeklyProgressView(
+                        userProfile: userProfile,
+                        currentWeekLogs: currentWeekLogs
+                    )
+                    .gridCellColumns(2)
+                }
+
+                GridRow {
+                    TodaysLogView(
+                        todaysLog: todaysLog,
+                        isLoading: isCreatingLog,
+                        error: logCreationError,
+                        prayerDebt: prayerDebt,
+                        userProfile: userProfile,
+                        onPrayerUpdate: updatePrayerStatus,
+                        onRetry: ensureTodaysLog
+                    )
+                    .gridCellColumns(2)
+                }
             }
-            .padding(.bottom, DesignSystem.Spacing.lg)
         }
         .navigationBarHidden(true)
         .onAppear {
