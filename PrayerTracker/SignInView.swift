@@ -26,6 +26,7 @@ struct SignInView: View {
                     .ignoresSafeArea(.all, edges: .top)
                     .opacity(illustrationOpacity)
                     .animation(.easeIn(duration: 0.35), value: illustrationOpacity)
+                    .accessibilityHidden(true)
                 
                 // Content Section - Positioned below hero image
                 VStack(spacing: 0) {
@@ -39,15 +40,15 @@ struct SignInView: View {
                     // Headline Block
                     VStack(spacing: 4) {
                         Text("Welcome to")
-                            .font(.system(size: 34, weight: .bold, design: .default))
+                            .font(DesignSystem.Typography.title1())
                             .foregroundColor(.primary)
                         
                         Text("your personal")
-                            .font(.system(size: 34, weight: .bold, design: .default))
+                            .font(DesignSystem.Typography.title1())
                             .foregroundColor(.primary)
                         
                         Text("Prayer Tracker")
-                            .font(.system(size: 34, weight: .bold, design: .default))
+                            .font(DesignSystem.Typography.title1())
                             .foregroundColor(.primary)
                     }
                     .multilineTextAlignment(.center)
@@ -73,6 +74,8 @@ struct SignInView: View {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                         )
+                        .accessibilityLabel("Sign in with Apple")
+                        .accessibilityHint("Use your Apple ID to sign in")
                         
                         // Continue with Google - Secondary
                         Button(action: {
@@ -83,9 +86,10 @@ struct SignInView: View {
                                     .resizable()
                                     .frame(width: 20, height: 20)
                                     .foregroundColor(.red)
+                                    .accessibilityHidden(true)
                                 
                                 Text("Continue with Google")
-                                    .font(.system(size: 17, weight: .medium))
+                                    .font(DesignSystem.Typography.body()).fontWeight(.medium)
                                     .foregroundColor(.primary)
                             }
                             .frame(maxWidth: .infinity)
@@ -96,6 +100,8 @@ struct SignInView: View {
                                     .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                             )
                         }
+                        .accessibilityLabel("Continue with Google")
+                        .accessibilityHint("Sign in with your Google account")
                         .scaleEffect(1.0)
                         .animation(.easeInOut(duration: 0.1), value: false)
                     }
@@ -116,6 +122,7 @@ struct SignInView: View {
                             .font(.caption)
                             .foregroundColor(.accentColor)
                             .underline()
+                            .accessibilityHint("View the terms of service")
                             
                             Text("and")
                                 .font(.caption)
@@ -127,6 +134,7 @@ struct SignInView: View {
                             .font(.caption)
                             .foregroundColor(.accentColor)
                             .underline()
+                            .accessibilityHint("Read the privacy policy")
                         }
                     }
                     .multilineTextAlignment(.center)

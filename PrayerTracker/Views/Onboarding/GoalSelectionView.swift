@@ -7,12 +7,12 @@ struct GoalSelectionView: View {
     var body: some View {
         VStack(spacing: 30) {
             Text("Set Your Daily Goal")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(DesignSystem.Typography.title1())
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             Text("How many Qada prayers do you aim to complete each day?")
-                .font(.system(size: 18, weight: .regular, design: .rounded))
+                .font(DesignSystem.Typography.body())
                 .multilineTextAlignment(.center)
                 .foregroundColor(.secondary)
                 .padding(.horizontal)
