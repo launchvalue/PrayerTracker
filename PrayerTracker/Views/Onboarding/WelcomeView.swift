@@ -1,0 +1,159 @@
+//
+//  WelcomeView.swift
+//  PrayerTracker
+//
+//  Created by Majd Moussa on 6/25/25.
+//
+
+import SwiftUI
+
+struct WelcomeView: View {
+    @Binding var currentStep: Int
+    @State private var illustrationOpacity: Double = 0
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                // Full-bleed Hero Image - Runs under status bar (reduced to 30%)
+                Image("welcome")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height * 0.3 + geometry.safeAreaInsets.top)
+                    .clipped()
+                    .ignoresSafeArea(.all, edges: .top)
+                    .opacity(illustrationOpacity)
+                    .animation(.easeIn(duration: 0.35), value: illustrationOpacity)
+                    .accessibilityHidden(true)
+                
+                // Content Section - Scrollable content below hero image
+                VStack(spacing: 0) {
+                    // Spacer to push content below hero image
+                    Spacer()
+                        .frame(height: geometry.size.height * 0.3)
+                    
+                    // Scrollable Content Section
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // Top padding
+                            Spacer(minLength: 20)
+                            
+                            // Headline
+                            VStack(spacing: 2) {
+                                Text("Welcome to")
+                                    .font(DesignSystem.Typography.title2())
+                                    .foregroundColor(.primary)
+                                
+                                Text("PrayerTracker")
+                                    .font(DesignSystem.Typography.title2())
+                                    .foregroundColor(.primary)
+                            }
+                            .multilineTextAlignment(.center)
+                            .dynamicTypeSize(...DynamicTypeSize.xLarge)
+                            .padding(.horizontal, 12)
+                            
+                            // Problem Block
+                            VStack(spacing: 12) {
+                                Text("Problem")
+                                    .font(DesignSystem.Typography.headline())
+                                    .foregroundColor(.secondary)
+                                    .textCase(.uppercase)
+                                    .tracking(0.5)
+                                
+                                Text("Keeping track of missed prayers is hard: notebooks get lost, mental counts drift, and motivation fades.")
+                                    .font(DesignSystem.Typography.body()).fontWeight(.medium)
+                                    .foregroundColor(.primary)
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(nil)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .padding(.horizontal, 24)
+                            
+                            // Why PrayerTracker? Block
+                            VStack(spacing: 12) {
+                                Text("Why PrayerTracker?")
+                                    .font(DesignSystem.Typography.headline())
+                                    .foregroundColor(.secondary)
+                                    .textCase(.uppercase)
+                                    .tracking(0.5)
+                                
+                                // 3 Quick Bullets
+                                VStack(spacing: 8) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.accentColor)
+                                            .font(DesignSystem.Typography.caption()).fontWeight(.medium)
+                                            .accessibilityHidden(true)
+                                        Text("Accurate totals")
+                                            .font(DesignSystem.Typography.body()).fontWeight(.medium)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                    }
+                                    
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.accentColor)
+                                            .font(DesignSystem.Typography.caption()).fontWeight(.medium)
+                                            .accessibilityHidden(true)
+                                        Text("Guided daily goals")
+                                            .font(DesignSystem.Typography.body()).fontWeight(.medium)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                    }
+                                    
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.accentColor)
+                                            .font(DesignSystem.Typography.caption()).fontWeight(.medium)
+                                            .accessibilityHidden(true)
+                                        Text("Sync & privacy")
+                                            .font(DesignSystem.Typography.body()).fontWeight(.medium)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                    }
+                                }
+                                .padding(.horizontal, 8)
+                            }
+                            .padding(.horizontal, 24)
+                            
+                            // Payoff Line
+                            Text("Turn backlog into clear, achievable milestones.")
+                                .font(DesignSystem.Typography.body()).fontWeight(.medium)
+                                .foregroundColor(.accentColor)
+                                .multilineTextAlignment(.center)
+                                .lineLimit(nil)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.horizontal, 24)
+                            
+                            // Get Started CTA Button
+                            Button(action: {
+                                withAnimation {
+                                    currentStep = 1
+                                }
+                            }) {
+                                Text("Get Started")
+                                    .font(DesignSystem.Typography.body()).fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 50)
+                                    .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                            .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                                    )
+                            }
+                            .accessibilityLabel("Get Started")
+                            .accessibilityHint("Begin setting up PrayerTracker")
+                            .padding(.horizontal, 24)
+                            .padding(.bottom, max(32, geometry.safeAreaInsets.bottom + 16))
+                        }
+                    }
+                    .scrollIndicators(.hidden)
+                }
+            }
+        }
+        .background(.background)
+        .onAppear {
+            illustrationOpacity = 1.0
+        }
+    }
+}

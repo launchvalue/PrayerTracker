@@ -3,8 +3,23 @@ import SwiftData
 import Combine
 
 struct HistoryView: View {
-    @Query(sort: \DailyLog.date, order: .reverse) private var dailyLogs: [DailyLog]
+    @Query private var dailyLogs: [DailyLog]
     @Environment(\.dismiss) private var dismiss
+    
+    let userID: String
+    
+    init(userID: String) {
+        self.userID = userID
+        
+        // Filter DailyLog by userID for data isolation
+        self._dailyLogs = Query(
+            filter: #Predicate<DailyLog> { log in
+                log.userID == userID
+            },
+            sort: \DailyLog.date,
+            order: .reverse
+        )
+    }
     
     var body: some View {
         NavigationStack {
@@ -97,6 +112,6 @@ struct HistoryRowView: View {
 }
 
 #Preview {
-    HistoryView()
+    HistoryView(userID: "preview-user")
         .modelContainer(for: [DailyLog.self])
 }

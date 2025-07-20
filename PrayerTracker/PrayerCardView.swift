@@ -18,10 +18,12 @@ struct PrayerCardView: View {
             Text("Today: \(prayersCompletedToday)")
                 .font(.callout)
                 .foregroundColor(.secondary)
+                .animation(.spring(), value: prayersCompletedToday)
 
             Text("\(prayerOwed) Remaining")
                 .font(.callout)
                 .foregroundColor(.secondary)
+                .animation(.spring(), value: prayerOwed)
 
             Button(action: { 
                 onLog(prayerName)

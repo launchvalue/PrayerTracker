@@ -1,57 +1,9 @@
 {
   "images" : [
     {
-      "filename" : "prayertracker-iOS-Default-40x40@2x.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "20x20"
-    },
-    {
-      "filename" : "prayertracker-iOS-Default-60x60@2x.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "20x20"
-    },
-    {
-      "filename" : "prayertracker-iOS-Default-60x60@2x.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "29x29"
-    },
-    {
-      "filename" : "prayertracker-iOS-Default-60x60@3x.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "29x29"
-    },
-    {
-      "filename" : "prayertracker-iOS-Default-40x40@2x 3.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "40x40"
-    },
-    {
-      "filename" : "prayertracker-iOS-Default-60x60@3x.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "40x40"
-    },
-    {
-      "filename" : "prayertracker-iOS-Default-60x60@2x 4.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "60x60"
-    },
-    {
-      "filename" : "prayertracker-iOS-Default-60x60@3x 1.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "60x60"
-    },
-    {
-      "filename" : "prayertracker-iOS-Default-1024x1024@1x.png",
-      "idiom" : "ios-marketing",
-      "scale" : "1x",
+      "filename" : "1024.png",
+      "idiom" : "universal",
+      "platform" : "ios",
       "size" : "1024x1024"
     },
     {
@@ -61,57 +13,9 @@
           "value" : "dark"
         }
       ],
-      "filename" : "prayertracker-iOS-Dark-60x60@2x.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "60x60"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "filename" : "prayertracker-iOS-Dark-60x60@3x.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "60x60"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "tinted"
-        }
-      ],
-      "filename" : "prayertracker-iOS-TintedLight-60x60@2x.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "60x60"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "tinted"
-        }
-      ],
-      "filename" : "prayertracker-iOS-TintedLight-60x60@3x.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "60x60"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "filename" : "prayertracker-iOS-Dark-1024x1024@1x.png",
-      "idiom" : "ios-marketing",
-      "scale" : "1x",
+      "filename" : "1024 1.png",
+      "idiom" : "universal",
+      "platform" : "ios",
       "size" : "1024x1024"
     },
     {
@@ -121,9 +25,9 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "prayertracker-iOS-TintedDark-1024x1024@1x.png",
-      "idiom" : "ios-marketing",
-      "scale" : "1x",
+      "filename" : "1024 2.png",
+      "idiom" : "universal",
+      "platform" : "ios",
       "size" : "1024x1024"
     }
   ],

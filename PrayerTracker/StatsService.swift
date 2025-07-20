@@ -7,40 +7,84 @@ class StatsService {
     private var modelContext: ModelContext
     var logs: [DailyLog] = []
     var userProfile: UserProfile? = nil
+    let userID: String
+    
+    // Loading and error state management
+    var isLoading: Bool = false
+    var hasError: Bool = false
+    private var isFetching: Bool = false
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, userID: String) {
         self.modelContext = modelContext
+        self.userID = userID
         fetchData()
     }
 
     func fetchData() {
+        // Prevent concurrent fetch operations
+        guard !isFetching else { return }
+        
+        isFetching = true
+        isLoading = true
+        hasError = false
+        
         do {
-            let descriptor = FetchDescriptor<DailyLog>(sortBy: [SortDescriptor(\.date, order: .reverse)])
+            // Filter DailyLog by userID for data isolation
+            let descriptor = FetchDescriptor<DailyLog>(
+                predicate: #Predicate<DailyLog> { log in
+                    log.userID == userID
+                },
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
             logs = try modelContext.fetch(descriptor)
 
-            let profileDescriptor = FetchDescriptor<UserProfile>()
+            // Filter UserProfile by userID for data isolation
+            let profileDescriptor = FetchDescriptor<UserProfile>(
+                predicate: #Predicate<UserProfile> { profile in
+                    profile.userID == userID
+                }
+            )
             userProfile = try modelContext.fetch(profileDescriptor).first
+            
+            // Success - clear error state
+            hasError = false
         } catch {
-            print("Failed to fetch data: \(error)")
+            print("Failed to fetch data for user \(userID): \(error)")
+            // Reset to safe state on error
+            logs = []
+            userProfile = nil
+            hasError = true
         }
+        
+        isLoading = false
+        isFetching = false
     }
 
     var totalInitialDebt: Int {
-        userProfile?.debt?.totalInitialDebt ?? 0
+        guard !hasError, let debt = userProfile?.debt else { return 0 }
+        return debt.totalInitialDebt
     }
 
     var totalPrayersMadeUp: Int {
-        guard let debt = userProfile?.debt else { return 0 }
-        return debt.initialFajrOwed - debt.fajrOwed + debt.initialDhuhrOwed - debt.dhuhrOwed + debt.initialAsrOwed - debt.asrOwed + debt.initialMaghribOwed - debt.maghribOwed + debt.initialIshaOwed - debt.ishaOwed
+        guard !hasError, let debt = userProfile?.debt else { return 0 }
+        let fajrMadeUp = max(0, debt.initialFajrOwed - debt.fajrOwed)
+        let dhuhrMadeUp = max(0, debt.initialDhuhrOwed - debt.dhuhrOwed)
+        let asrMadeUp = max(0, debt.initialAsrOwed - debt.asrOwed)
+        let maghribMadeUp = max(0, debt.initialMaghribOwed - debt.maghribOwed)
+        let ishaMadeUp = max(0, debt.initialIshaOwed - debt.ishaOwed)
+        return fajrMadeUp + dhuhrMadeUp + asrMadeUp + maghribMadeUp + ishaMadeUp
     }
 
     var overallCompletionPercentage: Double {
-        guard totalInitialDebt > 0 else { return 0.0 }
+        guard !hasError, !isLoading, totalInitialDebt > 0 else { return 0.0 }
         return Double(totalPrayersMadeUp) / Double(totalInitialDebt)
     }
 
     var prayerBreakdown: [(PrayerType, Double, Int, Int)] {
-        guard let debt = userProfile?.debt else { return [] }
+        guard let debt = userProfile?.debt else { 
+            // Return safe default values for all prayer types
+            return PrayerType.allCases.map { ($0, 0.0, 0, 0) }
+        }
 
         return PrayerType.allCases.map {
             let initialOwed: Int
@@ -52,14 +96,14 @@ class StatsService {
             case .maghrib: initialOwed = debt.initialMaghribOwed; currentOwed = debt.maghribOwed
             case .isha: initialOwed = debt.initialIshaOwed; currentOwed = debt.ishaOwed
             }
-            let madeUp = initialOwed - currentOwed
+            let madeUp = max(0, initialOwed - currentOwed) // Ensure non-negative
             let totalForCalculation = madeUp + currentOwed
             return ($0, totalForCalculation > 0 ? (Double(madeUp) / Double(totalForCalculation)) : 0.0, madeUp, initialOwed)
         }
     }
 
     var currentStreak: Int {
-        guard let dailyGoal = userProfile?.dailyGoal, !logs.isEmpty else { return 0 }
+        guard !hasError, !isLoading, let dailyGoal = userProfile?.dailyGoal, dailyGoal > 0, !logs.isEmpty else { return 0 }
 
         var streak = 0
         var currentDate = Calendar.current.startOfDay(for: Date())
@@ -89,7 +133,7 @@ class StatsService {
     }
 
     var longestStreak: Int {
-        guard let dailyGoal = userProfile?.dailyGoal, !logs.isEmpty else { return 0 }
+        guard !hasError, !isLoading, let dailyGoal = userProfile?.dailyGoal, dailyGoal > 0, !logs.isEmpty else { return 0 }
 
         var maxStreak = 0
         var currentStreak = 0
@@ -128,16 +172,17 @@ class StatsService {
 
     var forecastDate: String {
         guard let profile = userProfile, let debt = profile.debt else { return "N/A" }
-        let totalRemaining = debt.fajrOwed + debt.dhuhrOwed + debt.asrOwed + debt.maghribOwed + debt.ishaOwed
+        
+        let totalRemaining = max(0, debt.fajrOwed + debt.dhuhrOwed + debt.asrOwed + debt.maghribOwed + debt.ishaOwed)
 
         if totalRemaining <= 0 {
             return "All caught up!"
         }
 
+        guard profile.dailyGoal > 0 else { return "Set daily goal to see forecast" }
+
         let calendar = Calendar.current
         let daysToCompletion = Double(totalRemaining) / Double(profile.dailyGoal)
-
-        guard profile.dailyGoal > 0 else { return "Calculating..." }
 
         if let completionDate = calendar.date(byAdding: .day, value: Int(ceil(daysToCompletion)), to: Date()) {
             let formatter = DateFormatter()

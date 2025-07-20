@@ -23,8 +23,8 @@ struct WeeklyProgressCapsuleView: View {
     }
     
     private var accentColor: Color {
-        // Default accent color - can be customized via environment or settings
-        .blue
+        // Use the system's accent color
+        .accentColor
     }
     
     private var weekDays: [Date] {
@@ -170,11 +170,11 @@ private struct DayCapsuleView: View {
                 .foregroundColor(.secondary)
             
             ZStack {
-                // Base capsule
-                Capsule()
+                // Base circle
+                Circle()
                     .fill(capsuleBackgroundColor)
                     .overlay(
-                        Capsule()
+                        Circle()
                             .stroke(capsuleStrokeColor, lineWidth: capsuleStrokeWidth)
                     )
                 
@@ -198,7 +198,7 @@ private struct DayCapsuleView: View {
                         .foregroundColor(capsuleTextColor)
                 }
             }
-            .frame(width: 32, height: 44)
+            .frame(width: 44, height: 44)
         }
         .accessibilityLabel(accessibilityLabel)
         .animation(.easeInOut(duration: 0.25), value: state)

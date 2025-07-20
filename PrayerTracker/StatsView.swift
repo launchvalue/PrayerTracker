@@ -5,11 +5,49 @@ import Charts
 struct StatsView: View {
     @Environment(StatsService.self) private var statsService
     @Query private var userProfiles: [UserProfile]
+    
+    let userID: String
+    
+    init(userID: String) {
+        self.userID = userID
+        
+        // Filter UserProfile by userID for data isolation
+        self._userProfiles = Query(
+            filter: #Predicate<UserProfile> { profile in
+                profile.userID == userID
+            }
+        )
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                if let profile = userProfiles.first {
+                if statsService.isLoading {
+                    VStack {
+                        ProgressView("Loading statistics...")
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .transition(.opacity)
+                } else if statsService.hasError {
+                    VStack {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.largeTitle)
+                            .foregroundColor(.orange)
+                        Text("Unable to load statistics")
+                            .font(.headline)
+                        Text("Please try again")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Button("Retry") {
+                            statsService.fetchData()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding(.top)
+                    }
+                    .padding()
+                    .transition(.opacity)
+                } else if let profile = userProfiles.first {
                     VStack(spacing: 15) {
                         // Overall Completion Card
                         VStack {
@@ -92,7 +130,7 @@ struct StatsView: View {
                         }
 
                         // History Deep-Link
-                        NavigationLink(destination: HistoryView()) {
+                        NavigationLink(destination: HistoryView(userID: userID)) {
                             HStack {
                                 Image(systemName: "clock.arrow.circlepath")
                                 Text("View Full History")
@@ -121,12 +159,13 @@ struct StatsView: View {
             .onAppear {
                 statsService.fetchData()
             }
+            .animation(.easeOut(duration: 0.3), value: statsService.isLoading)
         }
     }
 }
 
 #Preview {
-    StatsView()
+    StatsView(userID: "preview-user")
         .modelContainer(for: [UserProfile.self, PrayerDebt.self, DailyLog.self])
-        .environment(StatsService(modelContext: ModelContext(try! ModelContainer(for: UserProfile.self, PrayerDebt.self, DailyLog.self))))
+        .environment(StatsService(modelContext: ModelContext(try! ModelContainer(for: UserProfile.self, PrayerDebt.self, DailyLog.self)), userID: "preview-user"))
 }

@@ -4,28 +4,63 @@ import SwiftData
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     let userProfile: UserProfile
-    @Binding var prayerDebt: PrayerDebt
+    @Bindable var prayerDebt: PrayerDebt
 
-    @Query(sort: \DailyLog.date, order: .reverse) private var dailyLogs: [DailyLog]
-
-    private var todaysLog: DailyLog? {
-        if let log = dailyLogs.first(where: { Calendar.current.isDateInToday($0.date) }) {
-            return log
-        } else {
-            let newLog = DailyLog(date: Date().startOfDay)
-            modelContext.insert(newLog)
-            do {
-                try modelContext.save()
-                print("DailyLog created successfully in HomeView!")
-            } catch {
-                print("Failed to create DailyLog in HomeView: \(error.localizedDescription)")
-            }
-            return newLog
-        }
+    @Query private var dailyLogs: [DailyLog]
+    
+    init(userProfile: UserProfile, prayerDebt: PrayerDebt) {
+        self.userProfile = userProfile
+        self.prayerDebt = prayerDebt
+        
+        let userID = userProfile.userID
+        
+        // Filter DailyLog by userID for data isolation
+        self._dailyLogs = Query(
+            filter: #Predicate<DailyLog> { log in
+                log.userID == userID
+            },
+            sort: \DailyLog.date,
+            order: .reverse
+        )
     }
+    
+    // State variables for log management
+    @State private var todaysLog: DailyLog?
+    @State private var logCreationError: Error?
+    @State private var isCreatingLog = false
 
     private var totalRemaining: Int {
         prayerDebt.fajrOwed + prayerDebt.dhuhrOwed + prayerDebt.asrOwed + prayerDebt.maghribOwed + prayerDebt.ishaOwed
+    }
+    
+    // MARK: - Log Management Functions
+    
+    private func ensureTodaysLog() {
+        // Check if we already have today's log
+        if let existingLog = dailyLogs.first(where: { Calendar.current.isDateInToday($0.date) }) {
+            todaysLog = existingLog
+            return
+        }
+        
+        // Prevent duplicate creation attempts
+        guard !isCreatingLog else { return }
+        isCreatingLog = true
+        
+        // Create new log with proper error handling and userID for data isolation
+        let newLog = DailyLog(userID: userProfile.userID, date: Date().startOfDay)
+        modelContext.insert(newLog)
+        
+        do {
+            try modelContext.save()
+            todaysLog = newLog
+            print("DailyLog created successfully in HomeView!")
+        } catch {
+            logCreationError = error
+            modelContext.rollback() // Rollback failed transaction
+            print("Failed to create DailyLog in HomeView: \(error.localizedDescription)")
+        }
+        
+        isCreatingLog = false
     }
 
     private var prayersMadeUpThisWeek: Int {
@@ -53,18 +88,7 @@ struct HomeView: View {
         return Double(prayersMadeUpThisWeek) / Double(userProfile.weeklyGoal)
     }
 
-    private func estimatedCompletionDate(profile: UserProfile) -> String {
-        if totalRemaining <= 0 {
-            return "All caught up!"
-        }
-        // Assuming user makes up 1 prayer debt per day in addition to daily prayers
-        if let completionDate = Calendar.current.date(byAdding: .day, value: totalRemaining, to: Date()) {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: completionDate)
-        }
-        return "Calculating..."
-    }
+    
 
     private func updatePrayerStatus(prayerName: String, log: DailyLog, profile: UserProfile) {
         switch prayerName {
@@ -72,35 +96,34 @@ struct HomeView: View {
             if prayerDebt.fajrOwed > 0 {
                 log.fajr += 1
                 prayerDebt.fajrOwed -= 1
-                profile.streak += 1
             }
         case "Dhuhr":
             if prayerDebt.dhuhrOwed > 0 {
                 log.dhuhr += 1
                 prayerDebt.dhuhrOwed -= 1
-                profile.streak += 1
             }
         case "Asr":
             if prayerDebt.asrOwed > 0 {
                 log.asr += 1
                 prayerDebt.asrOwed -= 1
-                profile.streak += 1
             }
         case "Maghrib":
             if prayerDebt.maghribOwed > 0 {
                 log.maghrib += 1
                 prayerDebt.maghribOwed -= 1
-                profile.streak += 1
             }
         case "Isha":
             if prayerDebt.ishaOwed > 0 {
                 log.isha += 1
                 prayerDebt.ishaOwed -= 1
-                profile.streak += 1
             }
         default:
             break
         }
+        
+        // Update daily streak after prayer completion
+        updateDailyStreak(log: log, profile: profile)
+        
         do {
             try modelContext.save()
             print("Prayer status updated and debt adjusted.")
@@ -108,82 +131,173 @@ struct HomeView: View {
             print("Failed to update prayer status or debt: \(error.localizedDescription)")
         }
     }
-
+    
+    /// Updates the user's daily streak based on daily goal completion
+    private func updateDailyStreak(log: DailyLog, profile: UserProfile) {
+        let today = Calendar.current.startOfDay(for: Date())
+        
+        // Check if all daily prayers are completed
+        if log.prayersCompleted >= profile.dailyGoal {
+            // Prevent multiple updates for the same day
+            if let lastUpdate = profile.lastStreakUpdate,
+               Calendar.current.isDate(lastUpdate, inSameDayAs: today) {
+                return // Already updated today
+            }
+            
+            // Check streak continuity
+            if let lastCompleted = profile.lastCompletedDate {
+                let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+                if Calendar.current.isDate(lastCompleted, inSameDayAs: yesterday) {
+                    profile.streak += 1 // Continue streak
+                } else if Calendar.current.isDate(lastCompleted, inSameDayAs: today) {
+                    // Same day, no change needed
+                } else {
+                    profile.streak = 1 // Reset streak after gap
+                }
+            } else {
+                profile.streak = 1 // First completion
+            }
+            
+            profile.lastStreakUpdate = today
+            profile.lastCompletedDate = today
+            profile.longestStreak = max(profile.longestStreak, profile.streak)
+            
+            print("Daily streak updated: \(profile.streak)")
+        }
+    }
+    
+    /// Checks for missed days and resets streak if necessary
+    private func checkAndResetStreakForMissedDays(profile: UserProfile) {
+        guard let lastCompleted = profile.lastCompletedDate else { return }
+        
+        let today = Calendar.current.startOfDay(for: Date())
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+        
+        // If last completed date is not yesterday or today, reset streak
+        if !Calendar.current.isDate(lastCompleted, inSameDayAs: yesterday) &&
+           !Calendar.current.isDate(lastCompleted, inSameDayAs: today) {
+            profile.streak = 0
+            print("Streak reset due to missed days. Last completed: \(lastCompleted), Today: \(today)")
+        }
+    }
+    
+    /// One-time migration to reset inflated streaks from the old system
+    private func migrateStreakData(profile: UserProfile) {
+        // Check if migration is needed (if streak seems inflated)
+        if profile.streak > 365 { // Reasonable threshold - no one has a 365+ day streak
+            profile.streak = 0
+            profile.lastStreakUpdate = nil
+            profile.lastCompletedDate = nil
+            print("Migrated inflated streak data. Reset to 0.")
+            
+            // Recalculate streak based on recent daily logs
+            recalculateStreakFromHistory(profile: profile)
+        }
+    }
+    
+    /// Recalculates streak based on historical daily log data
+    private func recalculateStreakFromHistory(profile: UserProfile) {
+        let today = Calendar.current.startOfDay(for: Date())
+        var currentStreak = 0
+        var checkDate = today
+        
+        // Look back through recent logs to rebuild accurate streak
+        for i in 0..<30 { // Check last 30 days
+            if let dayLog = dailyLogs.first(where: { Calendar.current.isDate($0.dateOnly, inSameDayAs: checkDate) }) {
+                if dayLog.prayersCompleted >= profile.dailyGoal {
+                    currentStreak += 1
+                } else {
+                    break // Streak broken
+                }
+            } else {
+                break // No log for this day, streak broken
+            }
+            
+            guard let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: checkDate) else { break }
+            checkDate = previousDay
+        }
+        
+        profile.streak = currentStreak
+        if currentStreak > 0 {
+            profile.lastCompletedDate = today
+            profile.lastStreakUpdate = today
+        }
+        
+        print("Recalculated streak from history: \(currentStreak)")
+    }
+    
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 15) {
-                // Custom Header: Dashboard Title and Greeting
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Dashboard")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    Text("Assalamu Alaykum, \(userProfile.name)")
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.horizontal)
-                .padding(.top, 20) // Adjusted top padding for overall screen
-
-                // Weekly Progress Capsules
-                WeeklyProgressCapsuleView(
-                    dailyGoal: userProfile.dailyGoal,
-                    weeklyLogs: currentWeekLogs
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+                // Header Section
+                HeaderView(
+                    userName: userProfile.name,
+                    hijriDate: hijriDate
                 )
-                .padding(.horizontal)
-
-                // Today's Log with Dates
-                HStack {
-                    Text("Today's Log")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    Spacer()
-                    VStack(alignment: .trailing) {
-                        Text(Date(), format: .dateTime.day().month().year())
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(hijriDate)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.top, 10)
-
-                if let todayLog = todaysLog {
-                    VStack(spacing: 10) {
-                        PrayerCardView(prayerName: "Fajr", prayerOwed: $prayerDebt.fajrOwed, prayersCompletedToday: Binding(get: { todayLog.fajr }, set: { todayLog.fajr = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                        PrayerCardView(prayerName: "Dhuhr", prayerOwed: $prayerDebt.dhuhrOwed, prayersCompletedToday: Binding(get: { todayLog.dhuhr }, set: { todayLog.dhuhr = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                        PrayerCardView(prayerName: "Asr", prayerOwed: $prayerDebt.asrOwed, prayersCompletedToday: Binding(get: { todayLog.asr }, set: { todayLog.asr = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                        PrayerCardView(prayerName: "Maghrib", prayerOwed: $prayerDebt.maghribOwed, prayersCompletedToday: Binding(get: { todayLog.maghrib }, set: { todayLog.maghrib = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                        PrayerCardView(prayerName: "Isha", prayerOwed: $prayerDebt.ishaOwed, prayersCompletedToday: Binding(get: { todayLog.isha }, set: { todayLog.isha = $0 })) { prayerName in
-                            updatePrayerStatus(prayerName: prayerName, log: todayLog, profile: userProfile)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical)
-                } else {
-                    Text("Error: Could not load or create daily log.")
-                        .padding(.horizontal)
-                }
+                
+                // Weekly Progress Section
+                WeeklyProgressView(
+                    userProfile: userProfile,
+                    currentWeekLogs: currentWeekLogs
+                )
+                
+                // Today's Log Section with Loading States
+                TodaysLogView(
+                    todaysLog: todaysLog,
+                    isLoading: isCreatingLog,
+                    error: logCreationError,
+                    prayerDebt: prayerDebt,
+                    userProfile: userProfile,
+                    onPrayerUpdate: updatePrayerStatus,
+                    onRetry: ensureTodaysLog
+                )
             }
+            .padding(.bottom, DesignSystem.Spacing.lg)
         }
-        .navigationBarHidden(true) // Hide default navigation bar
+        .navigationBarHidden(true)
+        .onAppear {
+            // Clear any existing model object references to prevent context invalidation
+            todaysLog = nil
+            logCreationError = nil
+            isCreatingLog = false
+            
+            ensureTodaysLog()
+            
+            // Perform streak management tasks
+            migrateStreakData(profile: userProfile)
+            checkAndResetStreakForMissedDays(profile: userProfile)
+        }
+        .alert("Error Creating Daily Log", isPresented: Binding(
+            get: { logCreationError != nil },
+            set: { _ in logCreationError = nil }
+        )) {
+            Button("OK") { }
+        } message: {
+            Text(logCreationError?.localizedDescription ?? "An unknown error occurred while creating today's prayer log.")
+        }
     }
 
-    private var hijriDate: String {
-        let date = Date()
+    /// Cached DateFormatter for Hijri dates to avoid repeated instantiation
+    private static var hijriFormatterCache: [IslamicCalendarType: DateFormatter] = [:]
+    
+    /// Gets or creates a cached DateFormatter for the specified Islamic calendar type
+    private static func getHijriFormatter(for calendarType: IslamicCalendarType) -> DateFormatter {
+        if let cachedFormatter = hijriFormatterCache[calendarType] {
+            return cachedFormatter
+        }
+        
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.calendar = Calendar(identifier: .islamicUmmAlQura)
+        formatter.calendar = Calendar(identifier: calendarType.calendarIdentifier)
         formatter.dateFormat = "d MMMM yyyy G"
-        return formatter.string(from: date)
+        
+        hijriFormatterCache[calendarType] = formatter
+        return formatter
+    }
+    
+    /// Computed property that returns the current date in Hijri format using user's preferred calendar
+    private var hijriDate: String {
+        let formatter = Self.getHijriFormatter(for: userProfile.islamicCalendarType)
+        return formatter.string(from: Date())
     }
 }

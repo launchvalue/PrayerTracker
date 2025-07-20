@@ -3,10 +3,32 @@ import SwiftData
 
 struct CalendarTabView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \DailyLog.date, order: .reverse) private var logs: [DailyLog]
+    @Query private var logs: [DailyLog]
     @Query private var userProfiles: [UserProfile]
     @State private var displayedMonth: Date = .now
     @State private var selectedLog: DailyLog? = nil
+    
+    let userID: String
+    
+    init(userID: String) {
+        self.userID = userID
+        
+        // Filter DailyLog by userID for data isolation
+        self._logs = Query(
+            filter: #Predicate<DailyLog> { log in
+                log.userID == userID
+            },
+            sort: \DailyLog.date,
+            order: .reverse
+        )
+        
+        // Filter UserProfile by userID for data isolation
+        self._userProfiles = Query(
+            filter: #Predicate<UserProfile> { profile in
+                profile.userID == userID
+            }
+        )
+    }
     
     private var dailyGoal: Int {
         userProfiles.first?.dailyGoal ?? 5
@@ -36,7 +58,7 @@ struct CalendarTabView: View {
                             if let log = log {
                                 selectedLog = log
                             } else {
-                                let newLog = DailyLog(date: date)
+                                let newLog = DailyLog(userID: userID, date: date)
                                 modelContext.insert(newLog)
                                 selectedLog = newLog
                             }
