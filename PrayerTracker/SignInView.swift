@@ -11,7 +11,7 @@ import CloudKit
 import AuthenticationServices
 
 struct SignInView: View {
-    @EnvironmentObject private var authManager: AuthenticationManager
+    @Environment(AuthenticationManager.self) private var authManager
     @State private var illustrationOpacity: Double = 0
     
     var body: some View {
@@ -167,5 +167,5 @@ struct SignInView: View {
 
 #Preview {
     SignInView()
-        .environmentObject(AuthenticationManager())
+        .environment(AuthenticationManager())
 }

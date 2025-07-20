@@ -5,7 +5,7 @@ struct TodaysLogView: View {
     let todaysLog: DailyLog?
     let isLoading: Bool
     let error: Error?
-    @Binding var prayerDebt: PrayerDebt
+    @Bindable var prayerDebt: PrayerDebt
     let userProfile: UserProfile
     let onPrayerUpdate: (String, DailyLog, UserProfile) -> Void
     let onRetry: () -> Void
@@ -42,7 +42,7 @@ struct TodaysLogView: View {
             } else if let todayLog = todaysLog {
                 PrayerCardsView(
                     todaysLog: todayLog,
-                    prayerDebt: $prayerDebt,
+                    prayerDebt: prayerDebt,
                     userProfile: userProfile,
                     onPrayerUpdate: onPrayerUpdate
                 )

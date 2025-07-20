@@ -4,13 +4,13 @@ import SwiftData
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     let userProfile: UserProfile
-    @Binding var prayerDebt: PrayerDebt
+    @Bindable var prayerDebt: PrayerDebt
 
     @Query private var dailyLogs: [DailyLog]
     
-    init(userProfile: UserProfile, prayerDebt: Binding<PrayerDebt>) {
+    init(userProfile: UserProfile, prayerDebt: PrayerDebt) {
         self.userProfile = userProfile
-        self._prayerDebt = prayerDebt
+        self.prayerDebt = prayerDebt
         
         let userID = userProfile.userID
         
@@ -246,7 +246,7 @@ struct HomeView: View {
                     todaysLog: todaysLog,
                     isLoading: isCreatingLog,
                     error: logCreationError,
-                    prayerDebt: $prayerDebt,
+                    prayerDebt: prayerDebt,
                     userProfile: userProfile,
                     onPrayerUpdate: updatePrayerStatus,
                     onRetry: ensureTodaysLog

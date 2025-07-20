@@ -1,10 +1,9 @@
 import SwiftUI
 import GoogleSignIn
 import GoogleSignInSwift
-import Combine // For ObservableObject protocol
 
 struct GoogleSignInButton: View {
-    @EnvironmentObject var authManager: AuthenticationManager
+    @Environment(AuthenticationManager.self) private var authManager
 
     var body: some View {
         Button(action: {

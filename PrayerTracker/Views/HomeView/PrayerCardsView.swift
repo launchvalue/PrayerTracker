@@ -3,7 +3,7 @@ import SwiftData
 
 struct PrayerCardsView: View {
     let todaysLog: DailyLog
-    @Binding var prayerDebt: PrayerDebt
+    @Bindable var prayerDebt: PrayerDebt
     let userProfile: UserProfile
     let onPrayerUpdate: (String, DailyLog, UserProfile) -> Void
     
