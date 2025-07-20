@@ -28,6 +28,7 @@ struct StatsView: View {
                             .padding()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .transition(.opacity)
                 } else if statsService.hasError {
                     VStack {
                         Image(systemName: "exclamationmark.triangle")
@@ -45,6 +46,7 @@ struct StatsView: View {
                         .padding(.top)
                     }
                     .padding()
+                    .transition(.opacity)
                 } else if let profile = userProfiles.first {
                     VStack(spacing: 15) {
                         // Overall Completion Card
@@ -157,6 +159,7 @@ struct StatsView: View {
             .onAppear {
                 statsService.fetchData()
             }
+            .animation(.easeOut(duration: 0.3), value: statsService.isLoading)
         }
     }
 }
