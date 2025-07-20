@@ -21,11 +21,11 @@ struct StatsView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            AdaptiveScrollView {
                 if statsService.isLoading {
                     VStack {
                         ProgressView("Loading statistics...")
-                            .padding()
+                            .adaptivePadding()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .transition(.opacity)
@@ -45,109 +45,120 @@ struct StatsView: View {
                         .buttonStyle(.borderedProminent)
                         .padding(.top)
                     }
-                    .padding()
+                    .adaptivePadding()
                     .transition(.opacity)
                 } else if let profile = userProfiles.first {
-                    VStack(spacing: 15) {
-                        // Overall Completion Card
-                        VStack {
-                            Text("Overall Completion")
-                                .font(.headline)
-                            Gauge(value: statsService.overallCompletionPercentage) {
-                                Text("\(Int(statsService.overallCompletionPercentage * 100))%")
+                    Grid(
+                        horizontalSpacing: DesignSystem.Layout.gridSpacing,
+                        verticalSpacing: DesignSystem.Layout.gridSpacing
+                    ) {
+                        GridRow {
+                            VStack {
+                                Text("Overall Completion")
+                                    .font(.headline)
+                                Gauge(value: statsService.overallCompletionPercentage) {
+                                    Text("\(Int(statsService.overallCompletionPercentage * 100))%")
+                                }
+                                .gaugeStyle(.accessoryCircularCapacity)
+                                .tint(.accentColor)
+                                .frame(width: 100, height: 100)
                             }
-                            .gaugeStyle(.accessoryCircularCapacity)
-                            .tint(.accentColor)
-                            .frame(width: 100, height: 100)
+                            .gridCellColumns(2)
                         }
 
-
-
-                        // Prayer-Type Breakdown
-                        VStack(alignment: .leading) {
-                            Text("Prayer Breakdown")
-                                .font(.headline)
-                                .padding(.bottom, 5)
-                            ForEach(statsService.prayerBreakdown, id: \.0.rawValue) { (prayerType, percentage, madeUp, initialOwed) in
-                                VStack(alignment: .leading) {
-                                    HStack {
-                                        Text(prayerType.rawValue)
-                                            .frame(width: 80, alignment: .leading)
-                                        ProgressView(value: percentage)
-                                            .tint(prayerType.color)
-                                            .frame(height: 6)
-                                        Text("\(madeUp)/\(initialOwed)")
-                                            .frame(width: 60, alignment: .trailing)
+                        GridRow {
+                            VStack(alignment: .leading) {
+                                Text("Prayer Breakdown")
+                                    .font(.headline)
+                                    .padding(.bottom, 5)
+                                ForEach(statsService.prayerBreakdown, id: \.0.rawValue) { (prayerType, percentage, madeUp, initialOwed) in
+                                    VStack(alignment: .leading) {
+                                        HStack {
+                                            Text(prayerType.rawValue)
+                                                .frame(width: 80, alignment: .leading)
+                                            ProgressView(value: percentage)
+                                                .tint(prayerType.color)
+                                                .frame(height: 6)
+                                            Text("\(madeUp)/\(initialOwed)")
+                                                .frame(width: 60, alignment: .trailing)
+                                        }
                                     }
+                                }
+                            }
+                            .gridCellColumns(2)
+                        }
+
+                        GridRow {
+                            VStack(alignment: .leading) {
+                                Text("Key Metrics")
+                                    .font(.headline)
+                                    .padding(.bottom, 5)
+                                HStack {
+                                    Text("Current Streak:")
+                                    Spacer()
+                                    Text("\(statsService.currentStreak) days")
+                                }
+                                HStack {
+                                    Text("Longest Streak:")
+                                    Spacer()
+                                    Text("\(statsService.longestStreak) days")
+                                }
+                                HStack {
+                                    Text("Best Day:")
+                                    Spacer()
+                                    Text("(\(statsService.bestDay?.prayersCompleted ?? 0) prayers)")
+                                }
+                            }
+
+                            VStack(alignment: .leading) {
+                                Text("Pace & Forecast")
+                                    .font(.headline)
+                                    .padding(.bottom, 5)
+                                HStack {
+                                    Text("Estimated Completion:")
+                                    Spacer()
+                                    Text(statsService.forecastDate)
                                 }
                             }
                         }
 
-                        // Key Metrics & Streaks
-                        VStack(alignment: .leading) {
-                            Text("Key Metrics")
-                                .font(.headline)
-                                .padding(.bottom, 5)
-                            HStack {
-                                Text("Current Streak:")
-                                Spacer()
-                                Text("\(statsService.currentStreak) days")
-                            }
-                            HStack {
-                                Text("Longest Streak:")
-                                Spacer()
-                                Text("\(statsService.longestStreak) days")
-                            }
-                            HStack {
-                                Text("Best Day:")
-                                Spacer()
-                                Text("(\(statsService.bestDay?.prayersCompleted ?? 0) prayers)")
-                            }
-                        }
-
-                        // Pace & Finish Forecast
-                        VStack(alignment: .leading) {
-                            Text("Pace & Forecast")
-                                .font(.headline)
-                                .padding(.bottom, 5)
-                            HStack {
-                                Text("Estimated Completion:")
-                                Spacer()
-                                Text(statsService.forecastDate)
-                            }
-                        }
-
-                        // Weekly Goal Bar
-                        VStack(alignment: .leading) {
-                            Text("Weekly Goal")
-                                .font(.headline)
-                                .padding(.bottom, 5)
-                            ProgressView(value: Double(statsService.weeklyBundles.completed), total: Double(statsService.weeklyBundles.goal)) {
-                                Text("(\(statsService.weeklyBundles.completed) / \(statsService.weeklyBundles.goal) bundles)")
-                            }
-                            .tint(.orange)
-                            .frame(height: 6)
-                        }
-
-                        // History Deep-Link
-                        NavigationLink(destination: HistoryView(userID: userID)) {
-                            HStack {
-                                Image(systemName: "clock.arrow.circlepath")
-                                Text("View Full History")
+                        GridRow {
+                            VStack(alignment: .leading) {
+                                Text("Weekly Goal")
                                     .font(.headline)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .padding(.bottom, 5)
+                                ProgressView(value: Double(statsService.weeklyBundles.completed), total: Double(statsService.weeklyBundles.goal)) {
+                                    Text("(\(statsService.weeklyBundles.completed) / \(statsService.weeklyBundles.goal) bundles)")
+                                }
+                                .tint(.orange)
+                                .frame(height: 6)
                             }
-                            .padding()
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+
+                            NavigationLink(destination: HistoryView(userID: userID)) {
+                                HStack {
+                                    Image(systemName: "clock.arrow.circlepath")
+                                    Text("View Full History")
+                                        .font(.headline)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                .adaptivePadding()
+                                .background(
+                                    .ultraThinMaterial,
+                                    in: RoundedRectangle(cornerRadius: 12)
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
-                    .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-                    .padding()
+                    .adaptivePadding()
+                    .background(
+                        .ultraThinMaterial,
+                        in: RoundedRectangle(cornerRadius: 16)
+                    )
+                    .adaptivePadding()
                 } else {
                     Text("No user profile found. Please complete the onboarding.")
                 }
