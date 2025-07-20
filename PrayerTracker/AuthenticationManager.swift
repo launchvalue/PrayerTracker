@@ -7,6 +7,7 @@ class AuthenticationManager: ObservableObject {
     @Published var isSignedIn: Bool = false
     @Published var currentUserID: String? = nil
     @Published var isAuthenticationComplete: Bool = false
+    @Published var shouldRefreshAppState: Bool = false
 
     init() {
         // Check if there's a previous Google Sign-In when the app starts
@@ -79,6 +80,12 @@ class AuthenticationManager: ObservableObject {
                 object: nil,
                 userInfo: ["previousUserID": previousUserID ?? "unknown"]
             )
+        }
+    }
+    
+    func triggerAppStateRefresh() {
+        DispatchQueue.main.async {
+            self.shouldRefreshAppState.toggle()
         }
     }
 }

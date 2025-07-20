@@ -116,6 +116,11 @@ struct PrayerTrackerApp: App {
                     }
                 }
             }
+            .onChange(of: authManager.shouldRefreshAppState) { _, _ in
+                Task {
+                    await determineAppState()
+                }
+            }
         }
     }
     

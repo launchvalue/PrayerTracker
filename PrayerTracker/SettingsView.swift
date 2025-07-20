@@ -116,8 +116,11 @@ struct SettingsView: View {
             
             try modelContext.save()
             print("All data deleted successfully for user: \(userID)")
-            // To restart the app to onboarding, we can dismiss all views
-            // and rely on the App's initial setup to show onboarding if no profile exists.
+            
+            // Trigger app state refresh to show onboarding for the now "new" user
+            authManager.triggerAppStateRefresh()
+            
+            // Dismiss settings view
             dismiss()
         } catch {
             print("Failed to delete user data: \(error.localizedDescription)")
