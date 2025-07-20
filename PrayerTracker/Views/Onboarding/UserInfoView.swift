@@ -16,23 +16,23 @@ struct UserInfoView: View {
     var body: some View {
         VStack(spacing: 30) {
             Text("Tell Us About Yourself")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(DesignSystem.Typography.title1())
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             VStack(alignment: .leading, spacing: 20) {
                 Text("What should we call you?")
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .font(DesignSystem.Typography.headline())
                     .foregroundColor(.secondary)
 
                 TextField("Your Name", text: $name)
                     .padding()
                     .background(Color(UIColor.secondarySystemBackground))
                     .cornerRadius(16)
-                    .font(.system(size: 18, weight: .regular, design: .rounded))
+                    .font(DesignSystem.Typography.body())
 
                 Text("Please select your gender.")
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .font(DesignSystem.Typography.headline())
                     .foregroundColor(.secondary)
 
                 Picker("Gender", selection: $gender) {

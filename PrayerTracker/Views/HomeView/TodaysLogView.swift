@@ -78,8 +78,9 @@ private struct ErrorStateView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 32))
+                .font(.largeTitle)
                 .foregroundColor(.orange)
+                .accessibilityHidden(true)
             
             Text("Failed to Load Today's Log")
                 .font(.headline)
@@ -107,8 +108,9 @@ private struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "calendar.badge.plus")
-                .font(.system(size: 32))
+                .font(.largeTitle)
                 .foregroundColor(.blue)
+                .accessibilityHidden(true)
             
             Text("No Log Found")
                 .font(.headline)

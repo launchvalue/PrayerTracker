@@ -23,6 +23,7 @@ struct WelcomeView: View {
                     .ignoresSafeArea(.all, edges: .top)
                     .opacity(illustrationOpacity)
                     .animation(.easeIn(duration: 0.35), value: illustrationOpacity)
+                    .accessibilityHidden(true)
                 
                 // Content Section - Scrollable content below hero image
                 VStack(spacing: 0) {
@@ -39,11 +40,11 @@ struct WelcomeView: View {
                             // Headline
                             VStack(spacing: 2) {
                                 Text("Welcome to")
-                                    .font(.system(size: 28, weight: .bold, design: .default))
+                                    .font(DesignSystem.Typography.title2())
                                     .foregroundColor(.primary)
                                 
                                 Text("PrayerTracker")
-                                    .font(.system(size: 28, weight: .bold, design: .default))
+                                    .font(DesignSystem.Typography.title2())
                                     .foregroundColor(.primary)
                             }
                             .multilineTextAlignment(.center)
@@ -53,13 +54,13 @@ struct WelcomeView: View {
                             // Problem Block
                             VStack(spacing: 12) {
                                 Text("Problem")
-                                    .font(.system(size: 16, weight: .semibold, design: .default))
+                                    .font(DesignSystem.Typography.headline())
                                     .foregroundColor(.secondary)
                                     .textCase(.uppercase)
                                     .tracking(0.5)
                                 
                                 Text("Keeping track of missed prayers is hard: notebooks get lost, mental counts drift, and motivation fades.")
-                                    .font(.system(size: 16, weight: .medium, design: .default))
+                                    .font(DesignSystem.Typography.body()).fontWeight(.medium)
                                     .foregroundColor(.primary)
                                     .multilineTextAlignment(.center)
                                     .lineLimit(nil)
@@ -70,7 +71,7 @@ struct WelcomeView: View {
                             // Why PrayerTracker? Block
                             VStack(spacing: 12) {
                                 Text("Why PrayerTracker?")
-                                    .font(.system(size: 16, weight: .semibold, design: .default))
+                                    .font(DesignSystem.Typography.headline())
                                     .foregroundColor(.secondary)
                                     .textCase(.uppercase)
                                     .tracking(0.5)
@@ -80,9 +81,10 @@ struct WelcomeView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundColor(.accentColor)
-                                            .font(.system(size: 14, weight: .medium))
+                                            .font(DesignSystem.Typography.caption()).fontWeight(.medium)
+                                            .accessibilityHidden(true)
                                         Text("Accurate totals")
-                                            .font(.system(size: 15, weight: .medium, design: .default))
+                                            .font(DesignSystem.Typography.body()).fontWeight(.medium)
                                             .foregroundColor(.primary)
                                         Spacer()
                                     }
@@ -90,9 +92,10 @@ struct WelcomeView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundColor(.accentColor)
-                                            .font(.system(size: 14, weight: .medium))
+                                            .font(DesignSystem.Typography.caption()).fontWeight(.medium)
+                                            .accessibilityHidden(true)
                                         Text("Guided daily goals")
-                                            .font(.system(size: 15, weight: .medium, design: .default))
+                                            .font(DesignSystem.Typography.body()).fontWeight(.medium)
                                             .foregroundColor(.primary)
                                         Spacer()
                                     }
@@ -100,9 +103,10 @@ struct WelcomeView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundColor(.accentColor)
-                                            .font(.system(size: 14, weight: .medium))
+                                            .font(DesignSystem.Typography.caption()).fontWeight(.medium)
+                                            .accessibilityHidden(true)
                                         Text("Sync & privacy")
-                                            .font(.system(size: 15, weight: .medium, design: .default))
+                                            .font(DesignSystem.Typography.body()).fontWeight(.medium)
                                             .foregroundColor(.primary)
                                         Spacer()
                                     }
@@ -113,7 +117,7 @@ struct WelcomeView: View {
                             
                             // Payoff Line
                             Text("Turn backlog into clear, achievable milestones.")
-                                .font(.system(size: 16, weight: .medium, design: .default))
+                                .font(DesignSystem.Typography.body()).fontWeight(.medium)
                                 .foregroundColor(.accentColor)
                                 .multilineTextAlignment(.center)
                                 .lineLimit(nil)
@@ -127,7 +131,7 @@ struct WelcomeView: View {
                                 }
                             }) {
                                 Text("Get Started")
-                                    .font(.system(size: 17, weight: .semibold))
+                                    .font(DesignSystem.Typography.body()).fontWeight(.semibold)
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 50)
@@ -137,6 +141,8 @@ struct WelcomeView: View {
                                             .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                                     )
                             }
+                            .accessibilityLabel("Get Started")
+                            .accessibilityHint("Begin setting up PrayerTracker")
                             .padding(.horizontal, 24)
                             .padding(.bottom, max(32, geometry.safeAreaInsets.bottom + 16))
                         }

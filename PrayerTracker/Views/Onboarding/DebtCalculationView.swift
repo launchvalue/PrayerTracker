@@ -25,7 +25,7 @@ struct DebtCalculationView: View {
     var body: some View {
         VStack(spacing: 30) {
             Text("Calculate Your Prayer Debt")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(DesignSystem.Typography.title1())
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 

@@ -58,7 +58,7 @@ struct OnboardingSummaryView: View {
     var body: some View {
         VStack(spacing: 30) {
             Text("Ready to Start?")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(DesignSystem.Typography.title1())
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
@@ -77,7 +77,7 @@ struct OnboardingSummaryView: View {
     private var summaryCard: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Summary")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(DesignSystem.Typography.title3()).fontWeight(.bold)
             summaryRow(label: "Name", value: name)
             summaryRow(label: "Gender", value: gender)
             summaryRow(label: "Calculation Method", value: calculationMethod.rawValue)
@@ -91,7 +91,7 @@ struct OnboardingSummaryView: View {
     private var goalCard: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Your Goal")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(DesignSystem.Typography.title3()).fontWeight(.bold)
             summaryRow(label: "Daily Goal", value: "\(dailyGoal) prayers")
             summaryRow(label: "Weekly Goal", value: "\(dailyGoal * 7) prayers")
             summaryRow(label: "Estimated Completion", value: estimatedCompletionDate)
@@ -104,11 +104,11 @@ struct OnboardingSummaryView: View {
     private func summaryRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .font(DesignSystem.Typography.headline())
                 .foregroundColor(.secondary)
             Spacer()
             Text(value)
-                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .font(DesignSystem.Typography.body()).fontWeight(.medium)
         }
     }
 }
