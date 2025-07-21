@@ -47,7 +47,7 @@ struct StatsView: View {
                     }
                     .adaptivePadding()
                     .transition(.opacity)
-                } else if let profile = userProfiles.first {
+                } else if !userProfiles.isEmpty {
                     Grid(
                         horizontalSpacing: DesignSystem.Layout.gridSpacing,
                         verticalSpacing: DesignSystem.Layout.gridSpacing

@@ -202,7 +202,7 @@ struct HomeView: View {
         var checkDate = today
         
         // Look back through recent logs to rebuild accurate streak
-        for i in 0..<30 { // Check last 30 days
+        for _ in 0..<30 { // Check last 30 days
             if let dayLog = dailyLogs.first(where: { Calendar.current.isDate($0.dateOnly, inSameDayAs: checkDate) }) {
                 if dayLog.prayersCompleted >= profile.dailyGoal {
                     currentStreak += 1
