@@ -68,9 +68,13 @@ struct HomeView: View {
         let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: Date())!.start
         let endOfWeek = calendar.dateInterval(of: .weekOfYear, for: Date())!.end
 
-        return dailyLogs.filter { log in
+        // Break up the complex expression into sub-expressions
+        let weekLogs = dailyLogs.filter { log in
             log.dateOnly >= startOfWeek && log.dateOnly < endOfWeek
-        }.reduce(0) { $0 + $1.prayersCompleted }
+        }
+        
+        let totalPrayers = weekLogs.reduce(0) { $0 + $1.prayersCompleted }
+        return totalPrayers
     }
     
     private var currentWeekLogs: [DailyLog] {
@@ -282,94 +286,76 @@ struct HomeView: View {
                 .cornerRadius(16)
                 .padding(.horizontal, 20)
                 
-                // Prayer Logging Interface - COMBINED SECTION
+                // Prayer Logging Interface - CLEAN MINIMAL DESIGN
                 if let log = todaysLog {
-                    VStack(spacing: 20) {
-                        // Header with clear call-to-action
-                        VStack(spacing: 8) {
-                            HStack {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundColor(.blue)
-                                    .font(.title2)
-                                
-                                Text("Log Your Prayers")
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
-                                
-                                Spacer()
-                                
-                                Text("\(log.prayersCompleted) today")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 4)
-                                    .background(Color(.systemGray5))
-                                    .cornerRadius(12)
-                            }
-                            
-                            Text("Tap a prayer to log it and reduce your debt")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
+                    // Clean header with inline remaining count
+                    HStack {
+                        Text("Track Your Prayer Debt")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
                         
-                        // Prayer buttons with debt information
-                        VStack(spacing: 12) {
-                            ForEach(["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"], id: \.self) { prayer in
-                                PrayerLogButton(
-                                    prayer: prayer,
-                                    todayCount: getPrayerCount(for: prayer, from: log),
-                                    debtCount: getPrayerDebtCount(for: prayer),
-                                    isEnabled: getPrayerDebtCount(for: prayer) > 0,
-                                    color: getPrayerColor(for: prayer),
-                                    onTap: {
+                        Spacer()
+                        
+                        // Inline remaining count
+                        if totalRemaining > 0 {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(.green)
+                                    .frame(width: 4, height: 4)
+                                
+                                Text("\(totalRemaining) remaining")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        } else {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(.green)
+                                    .frame(width: 4, height: 4)
+                                
+                                Text("All caught up")
+                                    .font(.caption2)
+                                    .foregroundColor(.green)
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    // Floating prayer cards with glassmorphism effect
+                    VStack(spacing: 8) {
+                        ForEach(["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"], id: \.self) { prayer in
+                            FloatingPrayerCard(
+                                prayer: prayer,
+                                todayCount: getPrayerCount(for: prayer, from: log),
+                                debtCount: getPrayerDebtCount(for: prayer),
+                                isEnabled: getPrayerDebtCount(for: prayer) > 0,
+                                color: getPrayerColor(for: prayer),
+                                onTap: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         updatePrayerStatus(prayerName: prayer, log: log, profile: userProfile)
                                     }
-                                )
-                            }
-                        }
-                        
-                        // Summary footer
-                        if totalRemaining > 0 {
-                            HStack {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.orange)
-                                
-                                Text("\(totalRemaining) prayers remaining to make up")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                
-                                Spacer()
-                            }
-                            .padding(.top, 8)
-                        } else {
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                                
-                                Text("All prayers caught up! 🎉")
-                                    .font(.caption)
-                                    .foregroundColor(.green)
-                                    .fontWeight(.medium)
-                                
-                                Spacer()
-                            }
-                            .padding(.top, 8)
+                                }
+                            )
                         }
                     }
-                    .padding(20)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(16)
-                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
                     .padding(.horizontal, 20)
+
+                    
                 } else if isCreatingLog {
-                    VStack(spacing: 12) {
-                        ProgressView()
-                        Text("Setting up today's log...")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                    HStack {
+                        Spacer()
+                        VStack(spacing: 8) {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                            Text("Preparing...")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
                     }
-                    .padding(20)
+                    .padding(.vertical, 40)
                 }
                 
                 Spacer(minLength: 20)
@@ -484,7 +470,7 @@ struct PrayerDebtCard: View {
     }
 }
 
-struct PrayerLogButton: View {
+struct FloatingPrayerCard: View {
     let prayer: String
     let todayCount: Int
     let debtCount: Int
@@ -492,86 +478,125 @@ struct PrayerLogButton: View {
     let color: Color
     let onTap: () -> Void
     
+    @State private var isPressed = false
+    
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 16) {
-                // Prayer name and icon
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Circle()
-                            .fill(color)
-                            .frame(width: 12, height: 12)
-                        
+            HStack(spacing: 0) {
+                // Left side - Prayer info with gradient accent
+                HStack(spacing: 12) {
+                    // Animated color indicator
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(
+                            LinearGradient(
+                                colors: isEnabled ? [color, color.opacity(0.6)] : [.gray, .gray.opacity(0.6)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .frame(width: 4, height: 32)
+                        .scaleEffect(y: isPressed ? 1.2 : 1.0)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(prayer)
-                            .font(.headline)
+                            .font(.system(.headline, design: .rounded))
                             .fontWeight(.semibold)
                             .foregroundColor(.primary)
-                    }
-                    
-                    if isEnabled {
-                        Text("Tap to log prayer")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text("All caught up!")
-                            .font(.caption2)
-                            .foregroundColor(.green)
+                        
+                        if isEnabled {
+                            HStack(spacing: 4) {
+                                Text("\(debtCount) to make up")
+                                    .font(.caption)
+                                    .foregroundColor(color)
+                                    .fontWeight(.medium)
+                                
+                                if todayCount > 0 {
+                                    Text("•")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    
+                                    Text("\(todayCount) today")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .fontWeight(.medium)
+                                }
+                            }
+                        } else {
+                            Text("Complete ✓")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                                .fontWeight(.medium)
+                        }
                     }
                 }
                 
                 Spacer()
                 
-                // Stats section
+                // Right side - Action button
                 HStack(spacing: 16) {
-                    // Today's count
-                    VStack(alignment: .center, spacing: 2) {
-                        Text("\(todayCount)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
+                    // Action button with haptic feedback
+                    ZStack {
+                        Circle()
+                            .fill(
+                                isEnabled ? 
+                                LinearGradient(
+                                    colors: [color.opacity(0.8), color],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ) :
+                                LinearGradient(
+                                    colors: [.green.opacity(0.8), .green],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 36, height: 36)
+                            .scaleEffect(isPressed ? 0.9 : 1.0)
+                            .shadow(
+                                color: isEnabled ? color.opacity(0.3) : .green.opacity(0.3),
+                                radius: isPressed ? 2 : 4,
+                                x: 0,
+                                y: isPressed ? 1 : 2
+                            )
                         
-                        Text("today")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    // Debt count
-                    VStack(alignment: .center, spacing: 2) {
-                        Text("\(debtCount)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(debtCount > 0 ? color : .green)
-                        
-                        Text("owed")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    // Action indicator
-                    if isEnabled {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.blue)
-                            .font(.title2)
-                    } else {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                            .font(.title2)
+                        Image(systemName: isEnabled ? "plus" : "checkmark")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                            .scaleEffect(isPressed ? 0.8 : 1.0)
                     }
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.vertical, 14)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isEnabled ? color.opacity(0.05) : Color(.systemGray6))
+                // Glassmorphism effect
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.ultraThinMaterial)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(isEnabled ? color.opacity(0.3) : Color.clear, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        .white.opacity(0.2),
+                                        .clear,
+                                        isEnabled ? color.opacity(0.1) : .clear
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
                     )
             )
+            .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .disabled(!isEnabled)
         .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
     }
 }
 
@@ -595,23 +620,19 @@ struct WeeklyCalendarView: View {
                 VStack(spacing: 4) {
                     Text(DateFormatter.dayFormatter.string(from: date))
                         .font(.caption2)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
+                        .fontWeight(isToday ? .semibold : .medium)
+                        .foregroundColor(isToday ? .accentColor : .secondary)
                     
                     Text("\(Calendar.current.component(.day, from: date))")
                         .font(.subheadline)
                         .fontWeight(isToday ? .bold : .medium)
-                        .foregroundColor(isToday ? .primary : .secondary)
+                        .foregroundColor(isToday ? .accentColor : (isCompleted ? .green : .secondary))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
                 .background(
-                    Circle()
-                        .fill(isCompleted ? Color.green.opacity(0.2) : Color.clear)
-                        .overlay(
-                            Circle()
-                                .stroke(isToday ? Color.blue : Color.clear, lineWidth: 2)
-                        )
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isCompleted && !isToday ? Color.green.opacity(0.1) : Color.clear)
                 )
             }
         }
