@@ -259,49 +259,30 @@ struct HomeView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
                 
-                // Prayer Debt Overview
+                // Weekly Overview - MOVED TO TOP
                 VStack(spacing: 16) {
                     HStack {
-                        Text("Prayers to Make Up")
+                        Text("This Week")
                             .font(.headline)
                             .fontWeight(.semibold)
                         Spacer()
-                        Text("\(totalRemaining) remaining")
+                        Text("\(prayersMadeUpThisWeek)/\(userProfile.weeklyGoal)")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     
-                    if totalRemaining > 0 {
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
-                            PrayerDebtCard(title: "Fajr", count: prayerDebt.fajrOwed, color: .blue)
-                            PrayerDebtCard(title: "Dhuhr", count: prayerDebt.dhuhrOwed, color: .orange)
-                            PrayerDebtCard(title: "Asr", count: prayerDebt.asrOwed, color: .yellow)
-                            PrayerDebtCard(title: "Maghrib", count: prayerDebt.maghribOwed, color: .pink)
-                            PrayerDebtCard(title: "Isha", count: prayerDebt.ishaOwed, color: .purple)
-                        }
-                    } else {
-                        VStack(spacing: 12) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 48))
-                                .foregroundColor(.green)
-                            
-                            Text("All caught up!")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                            
-                            Text("You have no prayers to make up")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.vertical, 20)
-                    }
+                    ProgressView(value: progress)
+                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                        .scaleEffect(y: 2)
+                    
+                    WeeklyCalendarView(logs: currentWeekLogs, dailyGoal: userProfile.dailyGoal)
                 }
                 .padding(20)
                 .background(Color(.systemGray6))
                 .cornerRadius(16)
                 .padding(.horizontal, 20)
                 
-                // Today's Progress
+                // Today's Progress - MOVED TO SECOND
                 if let log = todaysLog {
                     VStack(spacing: 16) {
                         HStack {
@@ -342,23 +323,42 @@ struct HomeView: View {
                     .padding(20)
                 }
                 
-                // Weekly Overview
+                // Prayer Debt Overview - MOVED TO BOTTOM
                 VStack(spacing: 16) {
                     HStack {
-                        Text("This Week")
+                        Text("Prayers to Make Up")
                             .font(.headline)
                             .fontWeight(.semibold)
                         Spacer()
-                        Text("\(prayersMadeUpThisWeek)/\(userProfile.weeklyGoal)")
+                        Text("\(totalRemaining) remaining")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     
-                    ProgressView(value: progress)
-                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                        .scaleEffect(y: 2)
-                    
-                    WeeklyCalendarView(logs: currentWeekLogs, dailyGoal: userProfile.dailyGoal)
+                    if totalRemaining > 0 {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
+                            PrayerDebtCard(title: "Fajr", count: prayerDebt.fajrOwed, color: .blue)
+                            PrayerDebtCard(title: "Dhuhr", count: prayerDebt.dhuhrOwed, color: .orange)
+                            PrayerDebtCard(title: "Asr", count: prayerDebt.asrOwed, color: .yellow)
+                            PrayerDebtCard(title: "Maghrib", count: prayerDebt.maghribOwed, color: .pink)
+                            PrayerDebtCard(title: "Isha", count: prayerDebt.ishaOwed, color: .purple)
+                        }
+                    } else {
+                        VStack(spacing: 12) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 48))
+                                .foregroundColor(.green)
+                            
+                            Text("All caught up!")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            
+                            Text("You have no prayers to make up")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 20)
+                    }
                 }
                 .padding(20)
                 .background(Color(.systemGray6))
