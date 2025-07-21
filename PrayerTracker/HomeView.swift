@@ -282,30 +282,79 @@ struct HomeView: View {
                 .cornerRadius(16)
                 .padding(.horizontal, 20)
                 
-                // Today's Progress - MOVED TO SECOND
+                // Prayer Logging Interface - COMBINED SECTION
                 if let log = todaysLog {
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("Today's Progress")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                            Spacer()
-                            Text("\(log.prayersCompleted) prayers")
-                                .font(.subheadline)
+                    VStack(spacing: 20) {
+                        // Header with clear call-to-action
+                        VStack(spacing: 8) {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundColor(.blue)
+                                    .font(.title2)
+                                
+                                Text("Log Your Prayers")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                
+                                Spacer()
+                                
+                                Text("\(log.prayersCompleted) today")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 4)
+                                    .background(Color(.systemGray5))
+                                    .cornerRadius(12)
+                            }
+                            
+                            Text("Tap a prayer to log it and reduce your debt")
+                                .font(.caption)
                                 .foregroundColor(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         
-                        HStack(spacing: 16) {
+                        // Prayer buttons with debt information
+                        VStack(spacing: 12) {
                             ForEach(["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"], id: \.self) { prayer in
-                                PrayerButton(
+                                PrayerLogButton(
                                     prayer: prayer,
-                                    count: getPrayerCount(for: prayer, from: log),
+                                    todayCount: getPrayerCount(for: prayer, from: log),
+                                    debtCount: getPrayerDebtCount(for: prayer),
                                     isEnabled: getPrayerDebtCount(for: prayer) > 0,
+                                    color: getPrayerColor(for: prayer),
                                     onTap: {
                                         updatePrayerStatus(prayerName: prayer, log: log, profile: userProfile)
                                     }
                                 )
                             }
+                        }
+                        
+                        // Summary footer
+                        if totalRemaining > 0 {
+                            HStack {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .foregroundColor(.orange)
+                                
+                                Text("\(totalRemaining) prayers remaining to make up")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                Spacer()
+                            }
+                            .padding(.top, 8)
+                        } else {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                
+                                Text("All prayers caught up! 🎉")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                                    .fontWeight(.medium)
+                                
+                                Spacer()
+                            }
+                            .padding(.top, 8)
                         }
                     }
                     .padding(20)
@@ -322,48 +371,6 @@ struct HomeView: View {
                     }
                     .padding(20)
                 }
-                
-                // Prayer Debt Overview - MOVED TO BOTTOM
-                VStack(spacing: 16) {
-                    HStack {
-                        Text("Prayers to Make Up")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
-                        Text("\(totalRemaining) remaining")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    if totalRemaining > 0 {
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
-                            PrayerDebtCard(title: "Fajr", count: prayerDebt.fajrOwed, color: .blue)
-                            PrayerDebtCard(title: "Dhuhr", count: prayerDebt.dhuhrOwed, color: .orange)
-                            PrayerDebtCard(title: "Asr", count: prayerDebt.asrOwed, color: .yellow)
-                            PrayerDebtCard(title: "Maghrib", count: prayerDebt.maghribOwed, color: .pink)
-                            PrayerDebtCard(title: "Isha", count: prayerDebt.ishaOwed, color: .purple)
-                        }
-                    } else {
-                        VStack(spacing: 12) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 48))
-                                .foregroundColor(.green)
-                            
-                            Text("All caught up!")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                            
-                            Text("You have no prayers to make up")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.vertical, 20)
-                    }
-                }
-                .padding(20)
-                .background(Color(.systemGray6))
-                .cornerRadius(16)
-                .padding(.horizontal, 20)
                 
                 Spacer(minLength: 20)
             }
@@ -438,6 +445,17 @@ struct HomeView: View {
         default: return 0
         }
     }
+    
+    private func getPrayerColor(for prayer: String) -> Color {
+        switch prayer {
+        case "Fajr": return .blue
+        case "Dhuhr": return .orange
+        case "Asr": return .yellow
+        case "Maghrib": return .pink
+        case "Isha": return .purple
+        default: return .gray
+        }
+    }
 }
 
 // MARK: - Custom UI Components
@@ -466,30 +484,94 @@ struct PrayerDebtCard: View {
     }
 }
 
-struct PrayerButton: View {
+struct PrayerLogButton: View {
     let prayer: String
-    let count: Int
+    let todayCount: Int
+    let debtCount: Int
     let isEnabled: Bool
+    let color: Color
     let onTap: () -> Void
     
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 4) {
-                Text(prayer)
-                    .font(.caption2)
-                    .fontWeight(.medium)
+            HStack(spacing: 16) {
+                // Prayer name and icon
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Circle()
+                            .fill(color)
+                            .frame(width: 12, height: 12)
+                        
+                        Text(prayer)
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    if isEnabled {
+                        Text("Tap to log prayer")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("All caught up!")
+                            .font(.caption2)
+                            .foregroundColor(.green)
+                    }
+                }
                 
-                Text("\(count)")
-                    .font(.headline)
-                    .fontWeight(.bold)
+                Spacer()
+                
+                // Stats section
+                HStack(spacing: 16) {
+                    // Today's count
+                    VStack(alignment: .center, spacing: 2) {
+                        Text("\(todayCount)")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                        
+                        Text("today")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    // Debt count
+                    VStack(alignment: .center, spacing: 2) {
+                        Text("\(debtCount)")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(debtCount > 0 ? color : .green)
+                        
+                        Text("owed")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    // Action indicator
+                    if isEnabled {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(.blue)
+                            .font(.title2)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.title2)
+                    }
+                }
             }
-            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(isEnabled ? Color.blue : Color(.systemGray4))
-            .foregroundColor(isEnabled ? .white : .secondary)
-            .cornerRadius(8)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isEnabled ? color.opacity(0.05) : Color(.systemGray6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isEnabled ? color.opacity(0.3) : Color.clear, lineWidth: 1)
+                    )
+            )
         }
         .disabled(!isEnabled)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
