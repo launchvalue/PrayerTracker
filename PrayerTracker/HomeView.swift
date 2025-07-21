@@ -227,39 +227,145 @@ struct HomeView: View {
     }
     
     var body: some View {
-        AdaptiveScrollView {
-            Grid(
-                horizontalSpacing: DesignSystem.Layout.gridSpacing,
-                verticalSpacing: DesignSystem.Layout.gridSpacing
-            ) {
-                GridRow {
-                    HeaderView(
-                        userName: userProfile.name,
-                        hijriDate: hijriDate
-                    )
-                    .gridCellColumns(2)
+        ScrollView {
+            VStack(spacing: 24) {
+                // Header Section
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Assalamu Alaikum")
+                                .font(.title2)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                            
+                            Text(userProfile.name.isEmpty ? "User" : userProfile.name)
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                        }
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing, spacing: 4) {
+                            Text(hijriDate)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            Text("🔥 \(userProfile.streak)")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                        }
+                    }
                 }
-
-                GridRow {
-                    WeeklyProgressView(
-                        userProfile: userProfile,
-                        currentWeekLogs: currentWeekLogs
-                    )
-                    .gridCellColumns(2)
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                
+                // Prayer Debt Overview
+                VStack(spacing: 16) {
+                    HStack {
+                        Text("Prayers to Make Up")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        Spacer()
+                        Text("\(totalRemaining) remaining")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    if totalRemaining > 0 {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
+                            PrayerDebtCard(title: "Fajr", count: prayerDebt.fajrOwed, color: .blue)
+                            PrayerDebtCard(title: "Dhuhr", count: prayerDebt.dhuhrOwed, color: .orange)
+                            PrayerDebtCard(title: "Asr", count: prayerDebt.asrOwed, color: .yellow)
+                            PrayerDebtCard(title: "Maghrib", count: prayerDebt.maghribOwed, color: .pink)
+                            PrayerDebtCard(title: "Isha", count: prayerDebt.ishaOwed, color: .purple)
+                        }
+                    } else {
+                        VStack(spacing: 12) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 48))
+                                .foregroundColor(.green)
+                            
+                            Text("All caught up!")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            
+                            Text("You have no prayers to make up")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 20)
+                    }
                 }
-
-                GridRow {
-                    TodaysLogView(
-                        todaysLog: todaysLog,
-                        isLoading: isCreatingLog,
-                        error: logCreationError,
-                        prayerDebt: prayerDebt,
-                        userProfile: userProfile,
-                        onPrayerUpdate: updatePrayerStatus,
-                        onRetry: ensureTodaysLog
-                    )
-                    .gridCellColumns(2)
+                .padding(20)
+                .background(Color(.systemGray6))
+                .cornerRadius(16)
+                .padding(.horizontal, 20)
+                
+                // Today's Progress
+                if let log = todaysLog {
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Today's Progress")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            Spacer()
+                            Text("\(log.prayersCompleted) prayers")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        HStack(spacing: 16) {
+                            ForEach(["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"], id: \.self) { prayer in
+                                PrayerButton(
+                                    prayer: prayer,
+                                    count: getPrayerCount(for: prayer, from: log),
+                                    isEnabled: getPrayerDebtCount(for: prayer) > 0,
+                                    onTap: {
+                                        updatePrayerStatus(prayerName: prayer, log: log, profile: userProfile)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    .padding(20)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(16)
+                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .padding(.horizontal, 20)
+                } else if isCreatingLog {
+                    VStack(spacing: 12) {
+                        ProgressView()
+                        Text("Setting up today's log...")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(20)
                 }
+                
+                // Weekly Overview
+                VStack(spacing: 16) {
+                    HStack {
+                        Text("This Week")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        Spacer()
+                        Text("\(prayersMadeUpThisWeek)/\(userProfile.weeklyGoal)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    ProgressView(value: progress)
+                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                        .scaleEffect(y: 2)
+                    
+                    WeeklyCalendarView(logs: currentWeekLogs, dailyGoal: userProfile.dailyGoal)
+                }
+                .padding(20)
+                .background(Color(.systemGray6))
+                .cornerRadius(16)
+                .padding(.horizontal, 20)
+                
+                Spacer(minLength: 20)
             }
         }
         .navigationBarHidden(true)
@@ -308,4 +414,134 @@ struct HomeView: View {
         let formatter = Self.getHijriFormatter(for: userProfile.islamicCalendarType)
         return formatter.string(from: Date())
     }
+    
+    // MARK: - Helper Functions for New UI
+    
+    private func getPrayerCount(for prayer: String, from log: DailyLog) -> Int {
+        switch prayer {
+        case "Fajr": return log.fajr
+        case "Dhuhr": return log.dhuhr
+        case "Asr": return log.asr
+        case "Maghrib": return log.maghrib
+        case "Isha": return log.isha
+        default: return 0
+        }
+    }
+    
+    private func getPrayerDebtCount(for prayer: String) -> Int {
+        switch prayer {
+        case "Fajr": return prayerDebt.fajrOwed
+        case "Dhuhr": return prayerDebt.dhuhrOwed
+        case "Asr": return prayerDebt.asrOwed
+        case "Maghrib": return prayerDebt.maghribOwed
+        case "Isha": return prayerDebt.ishaOwed
+        default: return 0
+        }
+    }
+}
+
+// MARK: - Custom UI Components
+
+struct PrayerDebtCard: View {
+    let title: String
+    let count: Int
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(title)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+            
+            Text("\(count)")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(color)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(color.opacity(0.1))
+        .cornerRadius(12)
+    }
+}
+
+struct PrayerButton: View {
+    let prayer: String
+    let count: Int
+    let isEnabled: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 4) {
+                Text(prayer)
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                
+                Text("\(count)")
+                    .font(.headline)
+                    .fontWeight(.bold)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(isEnabled ? Color.blue : Color(.systemGray4))
+            .foregroundColor(isEnabled ? .white : .secondary)
+            .cornerRadius(8)
+        }
+        .disabled(!isEnabled)
+    }
+}
+
+struct WeeklyCalendarView: View {
+    let logs: [DailyLog]
+    let dailyGoal: Int
+    
+    private var weekDays: [Date] {
+        let calendar = Calendar.current
+        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: Date())!.start
+        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
+    }
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(weekDays, id: \.self) { date in
+                let dayLog = logs.first { Calendar.current.isDate($0.dateOnly, inSameDayAs: date) }
+                let isCompleted = (dayLog?.prayersCompleted ?? 0) >= dailyGoal
+                let isToday = Calendar.current.isDateInToday(date)
+                
+                VStack(spacing: 4) {
+                    Text(DateFormatter.dayFormatter.string(from: date))
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                    
+                    Text("\(Calendar.current.component(.day, from: date))")
+                        .font(.subheadline)
+                        .fontWeight(isToday ? .bold : .medium)
+                        .foregroundColor(isToday ? .primary : .secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(
+                    Circle()
+                        .fill(isCompleted ? Color.green.opacity(0.2) : Color.clear)
+                        .overlay(
+                            Circle()
+                                .stroke(isToday ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Extensions
+
+extension DateFormatter {
+    static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+        return formatter
+    }()
 }
