@@ -24,9 +24,11 @@ xcuserdata/
 # Swift Package Manager
 .build/
 Packages/
-*.xcodeproj
-*.xcworkspace
+# Note: Don't ignore .xcodeproj and .xcworkspace - they're needed for the project
 
-# Xcode
+# User-specific files
 **/*.xcuserdata/
+
+# Temporary files
+Untitled/
 
