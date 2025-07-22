@@ -38,95 +38,42 @@ struct OnboardingView: View {
     @State private var profileSaved: Bool = false
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                TabView(selection: $currentStep) {
-                    WelcomeView(currentStep: $currentStep)
-                        .tag(0)
-
-                    UserInfoView(name: $name, gender: $gender)
-                        .tag(1)
-                    DebtCalculationView(gender: $gender, calculationMethod: $calculationMethod, startDate: $startDate, endDate: $endDate, bulkYears: $bulkYears, bulkMonths: $bulkMonths, bulkDays: $bulkDays, customFajr: $customFajr, customDhuhr: $customDhuhr, customAsr: $customAsr, customMaghrib: $customMaghrib, customIsha: $customIsha, averageCycleLength: $averageCycleLength)
-                        .tag(2)
-                    GoalSelectionView(dailyGoal: $dailyGoal)
-                        .tag(3)
-                    OnboardingSummaryView(
-                        name: name,
-                        gender: gender,
-                        calculationMethod: calculationMethod,
-                        startDate: startDate,
-                        endDate: endDate,
-                        bulkYears: bulkYears,
-                        bulkMonths: bulkMonths,
-                        bulkDays: bulkDays,
-                        customFajr: customFajr,
-                        customDhuhr: customDhuhr,
-                        customAsr: customAsr,
-                        customMaghrib: customMaghrib,
-                        customIsha: customIsha,
-                        dailyGoal: dailyGoal,
-                        averageCycleLength: averageCycleLength,
-                        onSave: saveProfile
-                    )
-                    .tag(4)
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-
-                // Navigation buttons (only for subsequent steps)
-                HStack {
-                    if currentStep > 0 {
-                        Button(action: {
-                            withAnimation {
-                                currentStep -= 1
-                            }
-                        }) {
-                            Text("Back")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.gray)
-                                .cornerRadius(16)
-                                .shadow(radius: 5)
-                        }
-                    }
-
-                    Spacer()
-
-                    if currentStep > 0 && currentStep < 4 {
-                        Button(action: {
-                            withAnimation {
-                                currentStep += 1
-                            }
-                        }) {
-                            Text("Continue")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.accentColor)
-                                .cornerRadius(16)
-                                .shadow(radius: 5)
-                        }
-                    } else if currentStep == 4 {
-                        Button(action: saveProfile) {
-                            Text("Let's Begin")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.accentColor)
-                                .cornerRadius(16)
-                                .shadow(radius: 5)
-                        }
-                    }
-                }
-                .padding()
-            }
+        TabView(selection: $currentStep) {
+            WelcomeView(currentStep: $currentStep)
+                .tag(0)
+            
+            UserInfoView(name: $name, gender: $gender, currentStep: $currentStep)
+                .tag(1)
+            
+            DebtCalculationView(gender: $gender, calculationMethod: $calculationMethod, startDate: $startDate, endDate: $endDate, bulkYears: $bulkYears, bulkMonths: $bulkMonths, bulkDays: $bulkDays, customFajr: $customFajr, customDhuhr: $customDhuhr, customAsr: $customAsr, customMaghrib: $customMaghrib, customIsha: $customIsha, averageCycleLength: $averageCycleLength, currentStep: $currentStep)
+                .tag(2)
+            
+            GoalSelectionView(dailyGoal: $dailyGoal, currentStep: $currentStep)
+                .tag(3)
+            
+            OnboardingSummaryView(
+                name: name,
+                gender: gender,
+                calculationMethod: calculationMethod,
+                startDate: startDate,
+                endDate: endDate,
+                bulkYears: bulkYears,
+                bulkMonths: bulkMonths,
+                bulkDays: bulkDays,
+                customFajr: customFajr,
+                customDhuhr: customDhuhr,
+                customAsr: customAsr,
+                customMaghrib: customMaghrib,
+                customIsha: customIsha,
+                dailyGoal: dailyGoal,
+                averageCycleLength: averageCycleLength,
+                currentStep: $currentStep,
+                onSave: saveProfile
+            )
+            .tag(4)
         }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .ignoresSafeArea(.all)
     }
     private func saveProfile() {
         guard !profileSaved else { return } // Prevent multiple saves
