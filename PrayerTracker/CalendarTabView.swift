@@ -40,20 +40,33 @@ struct CalendarTabView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 15) {
-                // Custom Header: Calendar Title
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Calendar")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+            VStack(alignment: .leading, spacing: 24) {
+                // Enhanced Header with Modern Design
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "calendar")
+                            .font(.title2)
+                            .foregroundStyle(Color.accentColor)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Calendar")
+                                .font(.largeTitle.bold())
+                            Text("Track your daily prayer progress")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                .padding(.horizontal)
-                .padding(.top, 20) // Adjusted top padding for overall screen
+                .padding(20)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
 
+                // Enhanced Calendar with Modern Design
                 CustomCalendarView(month: $displayedMonth) { date in
                     let log = logsByDate[date.startOfDay]
                     let isYesterday = Calendar.current.isDate(date, inSameDayAs: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
-                    CalendarDayCell(date: date, log: log, dailyGoal: dailyGoal, isToday: Calendar.current.isDateInToday(date), isYesterdayMissed: isYesterday && wasYesterdayMissed())
+                    EnhancedCalendarDayCell(date: date, log: log, dailyGoal: dailyGoal, isToday: Calendar.current.isDateInToday(date), isYesterdayMissed: isYesterday && wasYesterdayMissed())
                         .onTapGesture {
                             if let log = log {
                                 selectedLog = log
@@ -64,70 +77,51 @@ struct CalendarTabView: View {
                             }
                         }
                 }
+                .padding(Edge.Set.horizontal, 16)
 
-                VStack(alignment: .leading) {
-                    Text("History")
-                        .font(.title2).bold()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading)
+                // Enhanced History Section
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(.title3)
+                            .foregroundStyle(.accent)
+                        Text("Recent History")
+                            .font(.title2.bold())
+                    }
+                    .padding(.horizontal, 20)
 
-                    ForEach(logs.prefix(30)) { log in
-                        HStack {
-                            Text(log.date, format: .dateTime.month().day())
-                            Spacer()
-                            Text("\(log.prayersCompleted) / \(dailyGoal) completed")
-                                .foregroundColor(.secondary)
-                            if log.prayersCompleted >= dailyGoal {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                            }
+                    LazyVStack(spacing: 12) {
+                        ForEach(logs.prefix(10)) { log in
+                            EnhancedHistoryRow(log: log, dailyGoal: dailyGoal)
                         }
-                        .padding()
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, 16)
                 }
 
-                // Visual Key for Calendar Symbols
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Key")
-                        .font(.title2).bold()
-                        .padding(.leading)
-
-                    HStack {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                        Text("Daily goal met")
+                // Enhanced Key Section
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "info.circle")
+                            .font(.title3)
+                            .foregroundStyle(.accent)
+                        Text("Legend")
+                            .font(.title2.bold())
                     }
-                    .padding(.leading)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 4)
 
-                    HStack {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                        Text("Daily goal exceeded")
+                    VStack(spacing: 12) {
+                        EnhancedKeyItem(icon: "checkmark.circle.fill", iconColor: .green, text: "Daily goal achieved")
+                        EnhancedKeyItem(icon: "star.fill", iconColor: .yellow, text: "Goal exceeded")
+                        EnhancedKeyItem(icon: "circle", iconColor: .red, text: "Yesterday missed", isStroke: true)
+                        EnhancedKeyItem(icon: "circle.fill", iconColor: Color.accentColor, text: "Today's date")
                     }
-                    .padding(.leading)
-
-                    HStack {
-                        Circle()
-                            .stroke(Color.red, lineWidth: 2)
-                            .frame(width: 20, height: 20)
-                        Text("Yesterday's goal missed")
-                    }
-                    .padding(.leading)
-
-                    HStack {
-                        Circle()
-                            .fill(Color.accentColor)
-                            .frame(width: 20, height: 20)
-                        Text("Today's date")
-                    }
-                    .padding(.leading)
+                    .padding(20)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .padding(.horizontal, 16)
                 }
-                .padding(.bottom) // Add padding to the bottom of the key
             }
-            .padding(.horizontal, 16) // Apply horizontal padding to the main VStack
-            .padding(.bottom, 20) // Add bottom padding to the main VStack
+            .padding(.bottom, 24)
         }
         .navigationBarHidden(true) // Hide default navigation bar
         .sheet(item: $selectedLog) { log in
@@ -142,6 +136,197 @@ struct CalendarTabView: View {
     }
 }
 
+// Enhanced Calendar Day Cell with Modern Design
+struct EnhancedCalendarDayCell: View {
+    let date: Date
+    let log: DailyLog?
+    let dailyGoal: Int
+    let isToday: Bool
+    let isYesterdayMissed: Bool
+
+    private var prayersCompleted: Int {
+        log?.prayersCompleted ?? 0
+    }
+    
+    private var progressPercentage: Double {
+        guard dailyGoal > 0 else { return 0 }
+        return min(Double(prayersCompleted) / Double(dailyGoal), 1.0)
+    }
+    
+    private var statusColor: Color {
+        if prayersCompleted >= dailyGoal {
+            return prayersCompleted > dailyGoal ? .yellow : .green
+        } else if isYesterdayMissed {
+            return .red
+        } else {
+            return .secondary
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            // Date Display - consistent size for all days
+            Text(date.formatted(.dateTime.day()))
+                .font(.caption.weight(.medium))
+                .foregroundStyle(isToday ? Color.accentColor : .primary)
+                .frame(width: 32, height: 32)
+                .background {
+                    // Only show red stroke for yesterday missed, no background for today
+                    if isYesterdayMissed && !isToday {
+                        Circle()
+                            .stroke(.red, lineWidth: 1.5)
+                    }
+                }
+            
+            // Progress Indicator
+            VStack(spacing: 2) {
+                Text("\(prayersCompleted)/\(dailyGoal)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                
+                // Progress Bar
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(.quaternary)
+                    .frame(width: 24, height: 3)
+                    .overlay(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(statusColor)
+                            .frame(width: 24 * progressPercentage, height: 3)
+                    }
+                
+                // Status Icon - fixed height container to prevent layout shifts
+                VStack {
+                    if prayersCompleted >= dailyGoal {
+                        Image(systemName: prayersCompleted > dailyGoal ? "star.fill" : "checkmark.circle.fill")
+                            .font(.caption2)
+                            .foregroundStyle(statusColor)
+                    }
+                }
+                .frame(height: 12) // Fixed height to prevent layout shifts
+            }
+        }
+        .frame(height: 60)
+        .contentShape(Rectangle())
+    }
+}
+
+// Enhanced History Row with Modern Design
+struct EnhancedHistoryRow: View {
+    let log: DailyLog
+    let dailyGoal: Int
+    
+    private var progressPercentage: Double {
+        guard dailyGoal > 0 else { return 0 }
+        return min(Double(log.prayersCompleted) / Double(dailyGoal), 1.0)
+    }
+    
+    private var statusIcon: String {
+        if log.prayersCompleted > dailyGoal {
+            return "star.fill"
+        } else if log.prayersCompleted >= dailyGoal {
+            return "checkmark.circle.fill"
+        } else {
+            return "circle"
+        }
+    }
+    
+    private var statusColor: Color {
+        if log.prayersCompleted > dailyGoal {
+            return .yellow
+        } else if log.prayersCompleted >= dailyGoal {
+            return .green
+        } else {
+            return .secondary
+        }
+    }
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Date
+            VStack(alignment: .leading, spacing: 2) {
+                Text(log.date, format: .dateTime.weekday(.abbreviated))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(log.date, format: .dateTime.month().day())
+                    .font(.headline.weight(.medium))
+            }
+            .frame(width: 50, alignment: .leading)
+            
+            // Progress Info
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("\(log.prayersCompleted) / \(dailyGoal) prayers")
+                        .font(.subheadline)
+                    Spacer()
+                    Image(systemName: statusIcon)
+                        .font(.subheadline)
+                        .foregroundStyle(statusColor)
+                }
+                
+                // Progress Bar
+                GeometryReader { geometry in
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(.quaternary)
+                        .frame(height: 4)
+                        .overlay(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(statusColor)
+                                .frame(width: max(0, geometry.size.width * progressPercentage), height: 4)
+                                .animation(.easeInOut(duration: 0.3), value: progressPercentage)
+                        }
+                }
+                .frame(height: 4)
+            }
+        }
+        .padding(16)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// Enhanced Key Item for Legend
+struct EnhancedKeyItem: View {
+    let icon: String
+    let iconColor: Color
+    let text: String
+    let isStroke: Bool
+    
+    init(icon: String, iconColor: Color, text: String, isStroke: Bool = false) {
+        self.icon = icon
+        self.iconColor = iconColor
+        self.text = text
+        self.isStroke = isStroke
+    }
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Group {
+                if isStroke {
+                    Image(systemName: icon)
+                        .font(.subheadline)
+                        .foregroundStyle(iconColor)
+                        .overlay {
+                            Circle()
+                                .stroke(iconColor, lineWidth: 1.5)
+                                .frame(width: 16, height: 16)
+                        }
+                } else {
+                    Image(systemName: icon)
+                        .font(.subheadline)
+                        .foregroundStyle(iconColor)
+                }
+            }
+            .frame(width: 20, height: 20)
+            
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+            
+            Spacer()
+        }
+    }
+}
+
+// Keep original for backward compatibility
 struct CalendarDayCell: View {
     let date: Date
     let log: DailyLog?

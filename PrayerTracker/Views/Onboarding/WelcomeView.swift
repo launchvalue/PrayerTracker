@@ -13,49 +13,34 @@ struct WelcomeView: View {
     @State private var showContent = false
     
     var body: some View {
-        ZStack {
-            // Full-screen background that covers everything
-            Color.accentColor.opacity(0.1)
-                .ignoresSafeArea(.all)
-            
-            // Main content
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Top safe area spacer
-                    Spacer()
-                        .frame(height: 50) // Fixed spacing instead of safe area
+        GeometryReader { geometry in
+            ZStack {
+                // Full-screen background that covers everything
+                Color.accentColor.opacity(0.1)
+                    .ignoresSafeArea(.all)
+                
+                // Main content
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Top safe area spacer
+                        Spacer()
+                            .frame(height: max(20, geometry.safeAreaInsets.top + 20))
                     
                     // Hero Section
-                    VStack(spacing: 24) {
-                        // Animated Icon
-                        ZStack {
-                            Circle()
-                                .fill(Color.accentColor.opacity(0.1))
-                                .frame(width: 120, height: 120)
-                                .scaleEffect(animationPhase >= 1 ? 1.0 : 0.8)
-                                .opacity(animationPhase >= 1 ? 1.0 : 0.0)
-                            
-                            Image(systemName: "moon.stars.fill")
-                                .font(.system(size: 40, weight: .medium))
-                                .foregroundColor(.accentColor)
-                                .scaleEffect(animationPhase >= 2 ? 1.0 : 0.5)
-                                .opacity(animationPhase >= 2 ? 1.0 : 0.0)
-                        }
-                        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: animationPhase)
-                        
+                    VStack(spacing: 30) {
                         // Title with Animation
-                        VStack(spacing: 8) {
+                        VStack(spacing: 6) {
                             Text("Welcome to")
                                 .font(.system(size: 24, weight: .medium, design: .rounded))
                                 .foregroundColor(.secondary)
-                                .opacity(animationPhase >= 3 ? 1.0 : 0.0)
-                                .offset(y: animationPhase >= 3 ? 0 : 20)
+                                .opacity(animationPhase >= 1 ? 1.0 : 0.0)
+                                .offset(y: animationPhase >= 1 ? 0 : 20)
                             
                             Text("PrayerTracker")
                                 .font(.system(size: 36, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
-                                .opacity(animationPhase >= 4 ? 1.0 : 0.0)
-                                .offset(y: animationPhase >= 4 ? 0 : 20)
+                                .opacity(animationPhase >= 2 ? 1.0 : 0.0)
+                                .offset(y: animationPhase >= 2 ? 0 : 20)
                         }
                         .multilineTextAlignment(.center)
                         .animation(.easeOut(duration: 0.5).delay(0.1), value: animationPhase)
@@ -71,27 +56,28 @@ struct WelcomeView: View {
                             .animation(.easeOut(duration: 0.6).delay(0.8), value: showContent)
                     }
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 14)
                     
                     // Features Section
-                    VStack(spacing: 32) {
+                    VStack(spacing: 24) {
                         // Section Header
-                        VStack(spacing: 12) {
+                        VStack(spacing: 16) {
                             Text("Why Choose PrayerTracker?")
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                             
-                            Text("Transform your spiritual journey with intelligent tracking")
+                            Text("Track your prayers, build consistency, and strengthen your spiritual journey")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .opacity(showContent ? 1.0 : 0.0)
+                                .offset(y: showContent ? 0 : 30)
+                                .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .offset(y: showContent ? 0 : 30)
-                        .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
                         
                         // Feature Cards
-                        VStack(spacing: 20) {
+                        VStack(spacing: 24) {
                             FeatureCard(
                                 icon: "chart.line.uptrend.xyaxis",
                                 title: "Smart Progress Tracking",
@@ -116,26 +102,17 @@ struct WelcomeView: View {
                         .opacity(showContent ? 1.0 : 0.0)
                         
                         // CTA Section
-                        VStack(spacing: 20) {
-                            Text("Ready to transform your spiritual routine?")
-                                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                                .foregroundColor(.primary)
-                                .multilineTextAlignment(.center)
-                                .opacity(showContent ? 1.0 : 0.0)
-                                .offset(y: showContent ? 0 : 20)
-                                .animation(.easeOut(duration: 0.6).delay(1.6), value: showContent)
-                            
+                        VStack(spacing: 20) {                            
                             Button(action: {
-                                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                                    currentStep = 1
+                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                    currentStep += 1
                                 }
                             }) {
                                 HStack(spacing: 12) {
-                                    Text("Begin Your Journey")
+                                    Text("Get Started")
                                         .font(.system(size: 18, weight: .semibold, design: .rounded))
-                                    
-                                    Image(systemName: "arrow.right.circle.fill")
-                                        .font(.system(size: 20, weight: .medium))
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 16, weight: .medium))
                                 }
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -152,7 +129,7 @@ struct WelcomeView: View {
                                     RoundedRectangle(cornerRadius: 28, style: .continuous)
                                         .stroke(Color.white.opacity(0.2), lineWidth: 1)
                                 )
-                                .shadow(color: Color.accentColor.opacity(0.3), radius: 12, x: 0, y: 4)
+                                .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                             }
                             .scaleEffect(showContent ? 1.0 : 0.9)
                             .opacity(showContent ? 1.0 : 0.0)
@@ -164,10 +141,11 @@ struct WelcomeView: View {
                     
                     // Bottom safe area spacer
                     Spacer()
-                        .frame(height: 100) // Fixed spacing instead of safe area
+                        .frame(height: 32) // Fixed spacing instead of safe area
+                    }
                 }
+                .ignoresSafeArea(.all)
             }
-            .ignoresSafeArea(.all)
         }
         .onAppear {
             startAnimationSequence()
@@ -183,12 +161,6 @@ struct WelcomeView: View {
             animationPhase = 2
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            animationPhase = 3
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            animationPhase = 4
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             showContent = true
         }
     }

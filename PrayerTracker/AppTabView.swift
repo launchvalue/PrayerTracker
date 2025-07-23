@@ -46,7 +46,7 @@ struct AppTabView: View {
                     Label("Learn", systemImage: "book.fill")
                 }
 
-            SettingsView(userID: profile.userID)
+            SettingsView(userProfile: profile, prayerDebt: profile.debt!)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }

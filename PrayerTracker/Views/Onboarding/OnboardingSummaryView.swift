@@ -81,9 +81,9 @@ struct OnboardingSummaryView: View {
                 .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 0) {
+                    VStack(spacing: 24) {
                         // Header Section
-                        VStack(spacing: 24) {
+                        VStack(spacing: 16) {
                             Spacer(minLength: 8)
                             
                             // Progress Indicator - All Complete!
@@ -135,9 +135,9 @@ struct OnboardingSummaryView: View {
                             .offset(y: showContent ? 0 : 20)
                             .animation(.easeOut(duration: 0.6).delay(0.6), value: showContent)
                             
-                            Spacer(minLength: 40)
+                            Spacer(minLength: 12)
                         }
-                        .frame(minHeight: geometry.size.height * 0.45)
+                        .frame(minHeight: geometry.size.height * 0.25)
                         
                         // Summary Section
                         VStack(spacing: 24) {
@@ -192,8 +192,8 @@ struct OnboardingSummaryView: View {
                             .padding(24)
                             .background(
                                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .fill(Color.primary.opacity(0.05))
-                                    .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 4)
+                                    .fill(.background)
+                                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
                             )
                             .opacity(showContent ? 1.0 : 0.0)
                             .offset(y: showContent ? 0 : 30)
@@ -282,7 +282,7 @@ struct OnboardingSummaryView: View {
                                 .frame(height: 56)
                                 .background(
                                     LinearGradient(
-                                        gradient: Gradient(colors: [Color.green, Color.green.opacity(0.8)]),
+                                        gradient: Gradient(colors: [Color.accentColor, Color.accentColor.opacity(0.8)]),
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     ),
@@ -292,68 +292,27 @@ struct OnboardingSummaryView: View {
                                     RoundedRectangle(cornerRadius: 28, style: .continuous)
                                         .stroke(Color.white.opacity(0.2), lineWidth: 1)
                                 )
-                                .shadow(color: Color.green.opacity(0.3), radius: 12, x: 0, y: 4)
+                                .shadow(color: Color.accentColor.opacity(0.3), radius: 12, x: 0, y: 4)
                             }
                             .scaleEffect(showContent ? 1.0 : 0.9)
                             .opacity(showContent ? 1.0 : 0.0)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.4), value: showContent)
                             
                             // Navigation Buttons
-                            HStack(spacing: 16) {
-                                // Back button
-                                Button(action: {
+                            SimpleNavigationButtons(
+                                backAction: {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         currentStep -= 1
                                     }
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "chevron.left")
-                                            .font(.system(size: 16, weight: .semibold))
-                                        Text("Back")
-                                            .font(.system(size: 16, weight: .semibold))
-                                    }
-                                    .foregroundColor(.accentColor)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 50)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                            .fill(Color.clear)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                                    .stroke(Color.accentColor, lineWidth: 2)
-                                            )
-                                    )
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                
-                                // Finish button
-                                Button(action: {
+                                },
+                                continueAction: {
+                                    // This is the final step, so continue completes onboarding
                                     onSave()
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Text("Finish")
-                                            .font(.system(size: 16, weight: .semibold))
-                                        
-                                        Image(systemName: "checkmark")
-                                            .font(.system(size: 16, weight: .semibold))
-                                    }
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 50)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                            .fill(
-                                                LinearGradient(
-                                                    gradient: Gradient(colors: [Color.green, Color.green.opacity(0.8)]),
-                                                    startPoint: .leading,
-                                                    endPoint: .trailing
-                                                )
-                                            )
-                                            .shadow(color: Color.green.opacity(0.3), radius: 8, x: 0, y: 4)
-                                    )
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
+                                },
+                                continueText: "Begin Your Journey",
+                                canGoBack: true,
+                                canContinue: true
+                            )
                             .padding(.top, 32)
                             .opacity(showContent ? 1.0 : 0.0)
                             .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
@@ -363,6 +322,7 @@ struct OnboardingSummaryView: View {
                         }
                         .padding(.horizontal, 24)
                     }
+                    .padding(.bottom, 32)
                 }
                 .scrollIndicators(.hidden)
             }
@@ -379,6 +339,8 @@ struct OnboardingSummaryView: View {
             }
         }
     }
+    
+    // MARK: - Computed Properties
     
     private var methodIcon: String {
         switch calculationMethod {

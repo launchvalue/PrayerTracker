@@ -56,77 +56,175 @@ struct EducationView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // Header
-                    VStack(alignment: .leading) {
-                        Text("Learn")
-                            .font(.largeTitle.bold())
-                        Text("Guidance on the principles of Qada prayers.")
-                            .foregroundStyle(Color(red: 0.1, green: 0.4, blue: 0.2))
+                LazyVStack(spacing: 24) {
+                    // Enhanced Header
+                    VStack(spacing: 16) {
+                        HStack {
+                            Image(systemName: "book.closed")
+                                .font(.system(size: 28, weight: .medium))
+                                .foregroundColor(.accentColor)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Learn")
+                                    .font(.largeTitle.bold())
+                                    .foregroundColor(.primary)
+                                
+                                Text("Guidance on the principles of Qada prayers")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(20)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
                     }
-                    .padding(.horizontal)
-
-                    // Content Cards
-                    ForEach(topics) {
-                        topic in
-                        EducationCardView(topic: topic)
-                            .padding(.horizontal)
+                    .padding(.horizontal, 20)
+                    
+                    // Enhanced Content Cards
+                    ForEach(topics) { topic in
+                        EnhancedEducationCardView(topic: topic)
+                            .padding(.horizontal, 20)
                     }
                 }
-                .padding(.vertical)
+                .padding(.vertical, 20)
             }
-            .navigationTitle("About Qada & This App")
-            .navigationBarHidden(true)
+            .navigationTitle("Learn")
         }
     }
 }
 
-// MARK: - Card View
+// MARK: - Enhanced Card View
+
+struct EnhancedEducationCardView: View {
+    let topic: EducationTopic
+    @State private var isExpanded = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Card Header
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    isExpanded.toggle()
+                }
+            }) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(topic.title)
+                            .font(.headline.bold())
+                            .foregroundColor(.primary)
+                            .multilineTextAlignment(.leading)
+                        
+                        Text(topic.subtitle)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                }
+                .padding(20)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            // Expandable Content
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 16) {
+                    Divider()
+                        .padding(.horizontal, 20)
+                    
+                    // Content with better formatting
+                    VStack(alignment: .leading, spacing: 12) {
+                        ForEach(formatContent(topic.content), id: \.self) { paragraph in
+                            Text(paragraph)
+                                .font(.body)
+                                .foregroundColor(.primary)
+                                .lineLimit(nil)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    // Enhanced Sources Section
+                    if !topic.sources.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Divider()
+                                .padding(.horizontal, 20)
+                            
+                            HStack {
+                                Image(systemName: "link")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.accentColor)
+                                
+                                Text("Sources")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(.primary)
+                            }
+                            .padding(.horizontal, 20)
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                ForEach(Array(topic.sources.keys), id: \.self) { key in
+                                    if let url = topic.sources[key] {
+                                        Link(destination: url) {
+                                            HStack {
+                                                Image(systemName: "arrow.up.right.square")
+                                                    .font(.system(size: 12, weight: .medium))
+                                                    .foregroundColor(.accentColor)
+                                                
+                                                Text(key)
+                                                    .font(.callout)
+                                                    .foregroundColor(.accentColor)
+                                                    .underline()
+                                                
+                                                Spacer()
+                                            }
+                                            .padding(.horizontal, 20)
+                                            .padding(.vertical, 8)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .fill(Color.accentColor.opacity(0.1))
+                                            )
+                                        }
+                                        .padding(.horizontal, 20)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.bottom, 20)
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .move(edge: .top)),
+                    removal: .opacity.combined(with: .move(edge: .top))
+                ))
+            }
+        }
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
+    }
+    
+    // Helper function to format content into paragraphs
+    private func formatContent(_ content: String) -> [String] {
+        let paragraphs = content.components(separatedBy: "\n\n")
+        return paragraphs.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+}
+
+// MARK: - Legacy Card View (kept for compatibility)
 
 struct EducationCardView: View {
     let topic: EducationTopic
     @State private var isExpanded = false
 
     var body: some View {
-        VStack(alignment: .leading) {
-            DisclosureGroup(isExpanded: $isExpanded) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(topic.content)
-                        .font(.body)
-                    
-                    Divider()
-                    
-                    Text("Sources")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-                    
-                    ForEach(Array(topic.sources.keys), id: \.self) {
-                        key in
-                        if let url = topic.sources[key] {
-                            Link(key, destination: url)
-                                .font(.caption)
-                        }
-                    }
-                }
-            } label: {
-                VStack(alignment: .leading) {
-                    Text(topic.title)
-                        .font(.headline.bold())
-                        .foregroundColor(.black)
-                    Text(topic.subtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation {
-                        isExpanded.toggle()
-                    }
-                }
-            }
-        }
-        .padding()
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        EnhancedEducationCardView(topic: topic)
     }
 }
 

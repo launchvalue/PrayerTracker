@@ -20,7 +20,7 @@ struct UserInfoView: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(spacing: 24) {
                     // Header Section
                     VStack(spacing: 16) {
                         Spacer(minLength: 8)
@@ -39,8 +39,8 @@ struct UserInfoView: View {
                         .animation(.easeOut(duration: 0.5).delay(0.2), value: showContent)
                         
                         // Title Section
-                        VStack(spacing: 8) {
-                            Text("Tell Us About Yourself")
+                        VStack(spacing: 6) {
+                            Text("Tell us about yourself")
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                                 .multilineTextAlignment(.center)
@@ -54,12 +54,12 @@ struct UserInfoView: View {
                         .offset(y: showContent ? 0 : 20)
                         .animation(.easeOut(duration: 0.6).delay(0.4), value: showContent)
                         
-                        Spacer(minLength: 16)
+                        Spacer(minLength: 12)
                     }
                     .frame(minHeight: geometry.size.height * 0.25)
                     
                     // Form Section
-                    VStack(spacing: 32) {
+                    VStack(spacing: 24) {
                         // Name Input Section
                         VStack(alignment: .leading, spacing: 16) {
                             HStack(spacing: 12) {
@@ -167,69 +167,26 @@ struct UserInfoView: View {
                         .animation(.easeOut(duration: 0.6).delay(0.8), value: showContent)
                         
                         // Navigation Buttons
-                        HStack(spacing: 16) {
-                            // Back button
-                            Button(action: {
+                        SimpleNavigationButtons(
+                            backAction: {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     currentStep -= 1
                                 }
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "chevron.left")
-                                        .font(.system(size: 16, weight: .semibold))
-                                    Text("Back")
-                                        .font(.system(size: 16, weight: .semibold))
-                                }
-                                .foregroundColor(.accentColor)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                        .fill(Color.clear)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                                .stroke(Color.accentColor, lineWidth: 2)
-                                        )
-                                )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            // Continue button
-                            Button(action: {
+                            },
+                            continueAction: {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     currentStep += 1
                                 }
-                            }) {
-                                HStack(spacing: 8) {
-                                    Text("Continue")
-                                        .font(.system(size: 16, weight: .semibold))
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 16, weight: .semibold))
-                                }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                        .fill(
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [Color.accentColor, Color.accentColor.opacity(0.8)]),
-                                                startPoint: .leading,
-                                                endPoint: .trailing
-                                            )
-                                        )
-                                        .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
-                                )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
+                            },
+                            canGoBack: true,
+                            canContinue: !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        )
                         .padding(.top, 32)
                         .opacity(showContent ? 1.0 : 0.0)
                         .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
                         
                         // Bottom spacing
-                        Spacer(minLength: 40)
+                        Spacer(minLength: 32)
                     }
                     .padding(.horizontal, 24)
                 }

@@ -282,8 +282,7 @@ struct HomeView: View {
                     WeeklyCalendarView(logs: currentWeekLogs, dailyGoal: userProfile.dailyGoal)
                 }
                 .padding(20)
-                .background(Color(.systemGray6))
-                .cornerRadius(16)
+                .standardCardBackground()
                 .padding(.horizontal, 20)
                 
                 // Prayer Logging Interface - CLEAN MINIMAL DESIGN
@@ -532,62 +531,39 @@ struct FloatingPrayerCard: View {
                 
                 Spacer()
                 
-                // Right side - Action button
+                // Right side - Subtle action indicator
                 HStack(spacing: 16) {
-                    // Action button with haptic feedback
-                    ZStack {
-                        Circle()
-                            .fill(
-                                isEnabled ? 
-                                LinearGradient(
-                                    colors: [color.opacity(0.8), color],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ) :
-                                LinearGradient(
-                                    colors: [.green.opacity(0.8), .green],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 36, height: 36)
-                            .scaleEffect(isPressed ? 0.9 : 1.0)
-                            .shadow(
-                                color: isEnabled ? color.opacity(0.3) : .green.opacity(0.3),
-                                radius: isPressed ? 2 : 4,
-                                x: 0,
-                                y: isPressed ? 1 : 2
-                            )
-                        
-                        Image(systemName: isEnabled ? "plus" : "checkmark")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.white)
-                            .scaleEffect(isPressed ? 0.8 : 1.0)
+                    if isEnabled {
+                        // Subtle tap indicator using native iOS elements
+                        HStack(spacing: 6) {
+                            // Small plus icon in secondary color
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.secondary)
+                                .opacity(isPressed ? 0.6 : 0.8)
+                                .scaleEffect(isPressed ? 0.95 : 1.0)
+                            
+                            // Chevron to indicate tappable
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.secondary)
+                                .opacity(0.4)
+                                .scaleEffect(isPressed ? 0.9 : 1.0)
+                        }
+                    } else {
+                        // Completed state with subtle checkmark
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.green)
+                                .opacity(0.8)
+                        }
                     }
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(
-                // Glassmorphism effect
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        .white.opacity(0.2),
-                                        .clear,
-                                        isEnabled ? color.opacity(0.1) : .clear
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                    )
-            )
+            .enhancedCardBackground(color: isEnabled ? color : .clear)
             .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .disabled(!isEnabled)

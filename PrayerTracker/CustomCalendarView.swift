@@ -32,40 +32,67 @@ struct CustomCalendarView<Content: View>: View {
     private let daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
+            // Enhanced Month Navigation
             HStack {
                 Button(action: { changeMonth(by: -1) }) {
                     Image(systemName: "chevron.left")
+                        .font(.title3.weight(.medium))
+                        .foregroundStyle(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(.quaternary, in: Circle())
                 }
+                .buttonStyle(.plain)
+                
                 Spacer()
-                Text(month, format: .dateTime.month().year())
-                    .font(.headline)
+                
+                VStack(spacing: 2) {
+                    Text(month, format: .dateTime.month(.wide))
+                        .font(.title2.weight(.semibold))
+                    Text(month, format: .dateTime.year())
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
                 Spacer()
+                
                 Button(action: { changeMonth(by: 1) }) {
                     Image(systemName: "chevron.right")
+                        .font(.title3.weight(.medium))
+                        .foregroundStyle(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(.quaternary, in: Circle())
                 }
+                .buttonStyle(.plain)
             }
-            .padding(.vertical, 10) // Control vertical spacing of month navigation
+            .padding(.horizontal, 4)
 
-            HStack {
+            // Enhanced Day Headers
+            HStack(spacing: 0) {
                 ForEach(daysOfWeek, id: \.self) { day in
                     Text(day)
-                        .fontWeight(.medium)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
                 }
             }
+            .padding(.horizontal, 4)
             
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 4) { // Further reduced spacing
+            // Calendar Grid
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 8) {
                 ForEach(days, id: \.self) { date in
                     if date.timeIntervalSince1970 < 0 {
                         Color.clear
+                            .frame(height: 60)
                     } else {
                         content(date)
                     }
                 }
             }
+            .padding(.horizontal, 4)
         }
-        .padding(.all, 16) // Apply consistent internal padding
+        .padding(20)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
 

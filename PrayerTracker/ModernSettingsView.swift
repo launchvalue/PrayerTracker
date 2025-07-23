@@ -1,11 +1,8 @@
 import SwiftUI
-import SwiftData
 
-struct SettingsView: View {
-    @Environment(\.modelContext) private var modelContext
+struct ModernSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(AuthenticationManager.self) private var authManager
 
     @State private var showingDeleteConfirmation = false
     @State private var showingExportSheet = false
@@ -13,30 +10,16 @@ struct SettingsView: View {
     @State private var reminderTime = Date()
     @State private var selectedTheme = 0 // 0: Auto, 1: Light, 2: Dark
     @State private var weeklyGoal = 35
-    @State private var isDeleting = false
+    @State private var dailyGoal = 10
     
-    let userProfile: UserProfile
-    let prayerDebt: PrayerDebt
-    
-    init(userProfile: UserProfile, prayerDebt: PrayerDebt) {
-        self.userProfile = userProfile
-        self.prayerDebt = prayerDebt
-    }
-
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 24) {
                     // Goals & Preferences Section
-                    SettingsSection(title: "Goals & Preferences", icon: "target") {
-                        SettingsRow(title: "Daily Prayer Goal", icon: "calendar.day.timeline.left") {
-                            Picker("Daily Goal", selection: Binding(
-                                get: { userProfile.dailyGoal },
-                                set: { newValue in
-                                    userProfile.dailyGoal = newValue
-                                    try? modelContext.save()
-                                }
-                            )) {
+                    ModernSettingsSection(title: "Goals & Preferences", icon: "target") {
+                        ModernSettingsRow(title: "Daily Prayer Goal", icon: "calendar.day.timeline.left") {
+                            Picker("Daily Goal", selection: $dailyGoal) {
                                 ForEach(Array(stride(from: 5, through: 30, by: 5)), id: \.self) { goal in
                                     Text("\(goal) prayers").tag(goal)
                                 }
@@ -44,7 +27,7 @@ struct SettingsView: View {
                             .pickerStyle(.menu)
                         }
                         
-                        SettingsRow(title: "Weekly Goal", icon: "calendar.badge.clock") {
+                        ModernSettingsRow(title: "Weekly Goal", icon: "calendar.badge.clock") {
                             Picker("Weekly Goal", selection: $weeklyGoal) {
                                 ForEach(Array(stride(from: 25, through: 50, by: 5)), id: \.self) { goal in
                                     Text("\(goal) prayers").tag(goal)
@@ -53,7 +36,7 @@ struct SettingsView: View {
                             .pickerStyle(.menu)
                         }
                         
-                        SettingsRow(title: "Theme", icon: "paintbrush") {
+                        ModernSettingsRow(title: "Theme", icon: "paintbrush") {
                             Picker("Theme", selection: $selectedTheme) {
                                 Text("Auto").tag(0)
                                 Text("Light").tag(1)
@@ -64,13 +47,13 @@ struct SettingsView: View {
                     }
                     
                     // Notifications Section
-                    SettingsSection(title: "Notifications", icon: "bell") {
-                        SettingsRow(title: "Daily Reminders", icon: "bell.badge") {
+                    ModernSettingsSection(title: "Notifications", icon: "bell") {
+                        ModernSettingsRow(title: "Daily Reminders", icon: "bell.badge") {
                             Toggle("", isOn: $dailyReminderEnabled)
                         }
                         
                         if dailyReminderEnabled {
-                            SettingsRow(title: "Reminder Time", icon: "clock") {
+                            ModernSettingsRow(title: "Reminder Time", icon: "clock") {
                                 DatePicker("", selection: $reminderTime, displayedComponents: .hourAndMinute)
                                     .labelsHidden()
                             }
@@ -78,8 +61,8 @@ struct SettingsView: View {
                     }
                     
                     // Data Management Section
-                    SettingsSection(title: "Data Management", icon: "externaldrive") {
-                        SettingsButton(title: "Export Data", icon: "square.and.arrow.up", action: {
+                    ModernSettingsSection(title: "Data Management", icon: "externaldrive") {
+                        ModernSettingsButton(title: "Export Data", icon: "square.and.arrow.up", action: {
                             showingExportSheet = true
                         })
                         
@@ -87,37 +70,37 @@ struct SettingsView: View {
                             Text("Debt Adjustment")
                                 .navigationTitle("Adjust Debt")
                         } label: {
-                            SettingsRowContent(title: "Manually Adjust Debt", icon: "pencil.and.outline")
+                            ModernSettingsRowContent(title: "Manually Adjust Debt", icon: "pencil.and.outline")
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
                     
                     // About & Support Section
-                    SettingsSection(title: "About & Support", icon: "info.circle") {
+                    ModernSettingsSection(title: "About & Support", icon: "info.circle") {
                         NavigationLink {
                             Text("About Qada & This App")
                                 .navigationTitle("About")
                         } label: {
-                            SettingsRowContent(title: "About Qada & This App", icon: "book")
+                            ModernSettingsRowContent(title: "About Qada & This App", icon: "book")
                         }
                         .buttonStyle(PlainButtonStyle())
                         
-                        SettingsButton(title: "Privacy Policy", icon: "hand.raised", action: {
+                        ModernSettingsButton(title: "Privacy Policy", icon: "hand.raised", action: {
                             // TODO: Add privacy policy
                         })
                         
-                        SettingsButton(title: "Contact Support", icon: "envelope", action: {
+                        ModernSettingsButton(title: "Contact Support", icon: "envelope", action: {
                             // TODO: Add contact support
                         })
                     }
                     
                     // Account Section (Danger Zone)
-                    SettingsSection(title: "Account", icon: "person.circle") {
-                        SettingsButton(title: "Sign Out", icon: "rectangle.portrait.and.arrow.right", action: {
+                    ModernSettingsSection(title: "Account", icon: "person.circle") {
+                        ModernSettingsButton(title: "Sign Out", icon: "rectangle.portrait.and.arrow.right", action: {
                             // TODO: Add sign out functionality
                         })
                         
-                        SettingsButton(title: "Delete All Data", icon: "trash", isDestructive: true, action: {
+                        ModernSettingsButton(title: "Delete All Data", icon: "trash", isDestructive: true, action: {
                             showingDeleteConfirmation = true
                         })
                     }
@@ -125,79 +108,16 @@ struct SettingsView: View {
                 .padding(.vertical, 24)
             }
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.large)
-.alert("Delete All Data", isPresented: $showingDeleteConfirmation) {
-                Button(isDeleting ? "Deleting..." : "Delete", role: .destructive) {
-                    deleteAllData()
+            .alert("Delete All Data", isPresented: $showingDeleteConfirmation) {
+                Button("Delete", role: .destructive) {
+                    // TODO: Implement delete functionality
                 }
-                .disabled(isDeleting)
                 Button("Cancel", role: .cancel) { }
-                    .disabled(isDeleting)
             } message: {
-                Text(isDeleting ? "Deleting all your prayer data..." : "Are you sure you want to delete all your prayer data? This action cannot be undone and will remove iCloud backups too.")
+                Text("Are you sure you want to delete all your prayer data? This action cannot be undone.")
             }
-.sheet(isPresented: $showingExportSheet) {
-                ExportDataView(userProfile: userProfile)
-            }
-            .overlay {
-                if isDeleting {
-                    ZStack {
-                        Color.black.opacity(0.3)
-                            .ignoresSafeArea()
-                        
-                        VStack(spacing: 16) {
-                            ProgressView()
-                                .scaleEffect(1.2)
-                            Text("Deleting all data...")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                        }
-                        .padding(32)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-                    }
-                }
-            }
-        }
-    }
-
-    private func deleteAllData() {
-        isDeleting = true
-        
-        Task {
-            do {
-                let userID = userProfile.userID
-                print("Starting data deletion for user: \(userID)")
-                
-                // Delete all DailyLog entries for this user
-                let dailyLogPredicate = #Predicate<DailyLog> { log in
-                    log.userID == userID
-                }
-                let dailyLogDescriptor = FetchDescriptor<DailyLog>(predicate: dailyLogPredicate)
-                let dailyLogs = try modelContext.fetch(dailyLogDescriptor)
-                
-                for log in dailyLogs {
-                    modelContext.delete(log)
-                }
-                print("Deleted \(dailyLogs.count) daily log entries")
-                
-                // Delete current user's profile and debt
-                modelContext.delete(userProfile)
-                modelContext.delete(prayerDebt)
-                
-                try modelContext.save()
-                print("All data deleted successfully for user: \(userID)")
-                
-                // Trigger app state refresh to show onboarding
-                await MainActor.run {
-                    authManager.triggerAppStateRefresh()
-                    dismiss()
-                }
-                
-            } catch {
-                print("Failed to delete user data: \(error.localizedDescription)")
-                await MainActor.run {
-                    isDeleting = false
-                }
+            .sheet(isPresented: $showingExportSheet) {
+                ModernExportDataView()
             }
         }
     }
@@ -205,7 +125,7 @@ struct SettingsView: View {
 
 // MARK: - Custom Settings Components
 
-struct SettingsSection<Content: View>: View {
+struct ModernSettingsSection<Content: View>: View {
     let title: String
     let icon: String
     @ViewBuilder let content: Content
@@ -232,13 +152,13 @@ struct SettingsSection<Content: View>: View {
             VStack(spacing: 0) {
                 content
             }
-            .standardCardBackground()
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding(.horizontal, 20)
         }
     }
 }
 
-struct SettingsRow<Content: View>: View {
+struct ModernSettingsRow<Content: View>: View {
     let title: String
     let icon: String
     @ViewBuilder let content: Content
@@ -268,7 +188,7 @@ struct SettingsRow<Content: View>: View {
     }
 }
 
-struct SettingsRowContent: View {
+struct ModernSettingsRowContent: View {
     let title: String
     let icon: String
     
@@ -294,7 +214,7 @@ struct SettingsRowContent: View {
     }
 }
 
-struct SettingsButton: View {
+struct ModernSettingsButton: View {
     let title: String
     let icon: String
     let isDestructive: Bool
@@ -333,10 +253,9 @@ struct SettingsButton: View {
     }
 }
 
-// MARK: - Export Data View (Placeholder)
+// MARK: - Export Data View
 
-struct ExportDataView: View {
-    let userProfile: UserProfile
+struct ModernExportDataView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -368,7 +287,6 @@ struct ExportDataView: View {
             }
             .padding(20)
             .navigationTitle("Export Data")
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
@@ -378,4 +296,8 @@ struct ExportDataView: View {
             }
         }
     }
+}
+
+#Preview {
+    ModernSettingsView()
 }
