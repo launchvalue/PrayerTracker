@@ -56,7 +56,13 @@ struct EducationView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 24) {
+            VStack(alignment: .leading, spacing: 24) {
+                    // Standard Header
+                    Text("Learn")
+                        .font(.largeTitle.bold())
+                        .padding(.horizontal, 20)
+                        .padding(.top, 30)
+                    
                     // Enhanced Content Cards
                     ForEach(topics) { topic in
                         EnhancedEducationCardView(topic: topic)
@@ -65,7 +71,6 @@ struct EducationView: View {
                 }
                 .padding(.vertical, 20)
             }
-            .navigationTitle("Learn")
         }
     }
 }

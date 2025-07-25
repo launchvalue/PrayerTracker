@@ -66,6 +66,7 @@ struct DebtCalculationView: View {
                         }
                         .opacity(showContent ? 1.0 : 0.0)
                         .animation(.easeOut(duration: 0.5).delay(0.2), value: showContent)
+                        .padding(.bottom, 16)
                         
                         // Title Section
                         VStack(spacing: 6) {
@@ -82,10 +83,8 @@ struct DebtCalculationView: View {
                         .opacity(showContent ? 1.0 : 0.0)
                         .offset(y: showContent ? 0 : 20)
                         .animation(.easeOut(duration: 0.6).delay(0.4), value: showContent)
-                        
-                        Spacer(minLength: 12)
                     }
-                    .frame(minHeight: geometry.size.height * 0.25)
+                    .frame(minHeight: geometry.size.height * 0.20)
                     
                     // Main Content
                     VStack(spacing: 24) {

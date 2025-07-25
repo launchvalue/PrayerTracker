@@ -98,6 +98,7 @@ struct OnboardingSummaryView: View {
                             }
                             .opacity(showContent ? 1.0 : 0.0)
                             .animation(.easeOut(duration: 0.5).delay(0.2), value: showContent)
+                            .padding(.bottom, 16)
                             
                             // Celebration Icon
                             ZStack {
@@ -134,10 +135,8 @@ struct OnboardingSummaryView: View {
                             .opacity(showContent ? 1.0 : 0.0)
                             .offset(y: showContent ? 0 : 20)
                             .animation(.easeOut(duration: 0.6).delay(0.6), value: showContent)
-                            
-                            Spacer(minLength: 12)
                         }
-                        .frame(minHeight: geometry.size.height * 0.25)
+                        .frame(minHeight: geometry.size.height * 0.20)
                         
                         // Summary Section
                         VStack(spacing: 24) {
@@ -264,40 +263,7 @@ struct OnboardingSummaryView: View {
                             .offset(y: showContent ? 0 : 30)
                             .animation(.easeOut(duration: 0.6).delay(1.2), value: showContent)
                             
-                            // Start Journey Button
-                            Button(action: {
-                                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                                    onSave()
-                                }
-                            }) {
-                                HStack(spacing: 12) {
-                                    Text("Begin My Journey")
-                                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                                    
-                                    Image(systemName: "arrow.right.circle.fill")
-                                        .font(.system(size: 20, weight: .medium))
-                                }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [Color.accentColor, Color.accentColor.opacity(0.8)]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    ),
-                                    in: RoundedRectangle(cornerRadius: 28, style: .continuous)
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                                )
-                                .shadow(color: Color.accentColor.opacity(0.3), radius: 12, x: 0, y: 4)
-                            }
-                            .scaleEffect(showContent ? 1.0 : 0.9)
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.4), value: showContent)
-                            
+
                             // Navigation Buttons
                             SimpleNavigationButtons(
                                 backAction: {

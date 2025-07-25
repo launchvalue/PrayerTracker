@@ -13,6 +13,8 @@ import AuthenticationServices
 struct SignInView: View {
     @Environment(AuthenticationManager.self) private var authManager
     @State private var illustrationOpacity: Double = 0
+    @State private var showingPrivacyPolicy = false
+    @State private var showingTermsOfService = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -117,7 +119,7 @@ struct SignInView: View {
                         
                         HStack(spacing: 4) {
                             Button("Terms of Service") {
-                                // Handle Terms of Service tap
+                                showingTermsOfService = true
                             }
                             .font(.caption)
                             .foregroundColor(.accentColor)
@@ -129,7 +131,7 @@ struct SignInView: View {
                                 .foregroundColor(.secondary)
                             
                             Button("Privacy Policy") {
-                                // Handle Privacy Policy tap
+                                showingPrivacyPolicy = true
                             }
                             .font(.caption)
                             .foregroundColor(.accentColor)
@@ -148,6 +150,12 @@ struct SignInView: View {
         .background(.background)
         .onAppear {
             illustrationOpacity = 1.0
+        }
+        .sheet(isPresented: $showingPrivacyPolicy) {
+            PrivacyPolicyView()
+        }
+        .sheet(isPresented: $showingTermsOfService) {
+            TermsOfServiceView()
         }
     }
     

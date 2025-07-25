@@ -23,21 +23,24 @@ struct StatsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                        VStack(spacing: 0) {
-                            // Header Section (25% of screen height)
-                            VStack(spacing: 16) {
-                                Spacer(minLength: 8)
+            VStack(alignment: .leading, spacing: 12) {
+                            // Title Section - Full Width
+                            HStack {
+                                Text("Your Progress")
+                                    .font(.largeTitle.bold())
+                                    .foregroundColor(.primary)
+                                    .padding(.top, 50)
+                                    .padding(.leading, 20)
+                                    .opacity(showContent ? 1 : 0)
+                                    .animation(.easeOut(duration: 0.6), value: showContent)
+                                Spacer()
+                            }
+                            
+                            // Header Section - Compact
+                            VStack(spacing: 8) {
                                 
                                 // Hero Stats Section - Left Aligned
                                 VStack(alignment: .leading, spacing: 16) {
-                                    HStack {
-                                        Text("Your Progress")
-                                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                                            .foregroundColor(.primary)
-                                            .opacity(showContent ? 1 : 0)
-                                            .animation(.easeOut(duration: 0.6), value: showContent)
-                                        Spacer()
-                                    }
                                     
                                     if !statsService.isLoading && !statsService.hasError && !userProfiles.isEmpty {
                                         HStack(spacing: 32) {
@@ -84,13 +87,10 @@ struct StatsView: View {
                                     }
                                 }
                                 .padding(.horizontal, AppSpacing.large)
-                                
-                                Spacer(minLength: 8)
                             }
-                            .frame(minHeight: 200)
                             
                             // Content Section
-                            VStack(spacing: 24) {
+                            VStack(spacing: 16) {
                                 if statsService.isLoading {
                                     VStack(spacing: 16) {
                                         ProgressView()
@@ -230,7 +230,7 @@ struct StatsView: View {
                                         // Compact prayer list
                                         VStack(spacing: 0) {
                                             ForEach(Array(statsService.prayerBreakdown.enumerated()), id: \.offset) { index, breakdown in
-                                                let (prayerType, percentage, madeUp, initialOwed) = breakdown
+                                                let (prayerType, _, madeUp, initialOwed) = breakdown
                                                 let remaining = initialOwed - madeUp
                                                 
                                                 HStack {
@@ -345,8 +345,6 @@ struct StatsView: View {
                         }
             }
             .scrollIndicators(.hidden)
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
             .refreshable {
                 statsService.fetchData()
             }

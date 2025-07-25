@@ -9,7 +9,6 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Binding var currentStep: Int
-    @State private var animationPhase = 0
     @State private var showContent = false
     
     var body: some View {
@@ -28,22 +27,17 @@ struct WelcomeView: View {
                     
                     // Hero Section
                     VStack(spacing: 30) {
-                        // Title with Animation
+                        // Title
                         VStack(spacing: 6) {
                             Text("Welcome to")
                                 .font(.system(size: 24, weight: .medium, design: .rounded))
                                 .foregroundColor(.secondary)
-                                .opacity(animationPhase >= 1 ? 1.0 : 0.0)
-                                .offset(y: animationPhase >= 1 ? 0 : 20)
                             
                             Text("PrayerTracker")
                                 .font(.system(size: 36, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
-                                .opacity(animationPhase >= 2 ? 1.0 : 0.0)
-                                .offset(y: animationPhase >= 2 ? 0 : 20)
                         }
                         .multilineTextAlignment(.center)
-                        .animation(.easeOut(duration: 0.5).delay(0.1), value: animationPhase)
                         
                         // Subtitle
                         Text("Your personal companion for\ntracking your missed prayers.")
@@ -51,9 +45,6 @@ struct WelcomeView: View {
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                             .lineSpacing(4)
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .offset(y: showContent ? 0 : 20)
-                            .animation(.easeOut(duration: 0.6).delay(0.8), value: showContent)
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 14)
@@ -71,9 +62,6 @@ struct WelcomeView: View {
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
                                 .lineLimit(2)
-                                .opacity(showContent ? 1.0 : 0.0)
-                                .offset(y: showContent ? 0 : 30)
-                                .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
                         }
                         
                         // Feature Cards
@@ -81,25 +69,21 @@ struct WelcomeView: View {
                             FeatureCard(
                                 icon: "chart.line.uptrend.xyaxis",
                                 title: "Smart Progress Tracking",
-                                description: "Visualize your journey with detailed analytics.",
-                                delay: 1.2
+                                description: "Visualize your journey with detailed analytics."
                             )
                             
                             FeatureCard(
                                 icon: "target",
                                 title: "Personalized Goals",
-                                description: "Set achievable daily targets that adapt to your lifestyle and capabilities.",
-                                delay: 1.4
+                                description: "Set achievable daily targets that adapt to your lifestyle."
                             )
                             
                             FeatureCard(
                                 icon: "lock.shield",
                                 title: "Privacy First",
-                                description: "Your spiritual journey stays private with secure local storage",
-                                delay: 1.6
+                                description: "Your spiritual journey stays private with secure local storage"
                             )
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
                         
                         // CTA Section
                         VStack(spacing: 20) {                            
@@ -131,9 +115,7 @@ struct WelcomeView: View {
                                 )
                                 .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                             }
-                            .scaleEffect(showContent ? 1.0 : 0.9)
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.8), value: showContent)
+
                         }
                         .padding(.top, 20)
                     }
@@ -144,6 +126,8 @@ struct WelcomeView: View {
                         .frame(height: 32) // Fixed spacing instead of safe area
                     }
                 }
+                .opacity(showContent ? 1.0 : 0.0)
+                .animation(.easeOut(duration: 0.8), value: showContent)
                 .ignoresSafeArea(.all)
             }
         }
@@ -153,14 +137,8 @@ struct WelcomeView: View {
     }
     
     private func startAnimationSequence() {
-        // Staggered animation sequence
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            animationPhase = 1
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            animationPhase = 2
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        // Simple fade-in animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             showContent = true
         }
     }
@@ -171,8 +149,6 @@ struct FeatureCard: View {
     let icon: String
     let title: String
     let description: String
-    let delay: Double
-    @State private var isVisible = false
     
     var body: some View {
         HStack(spacing: 16) {
@@ -202,17 +178,11 @@ struct FeatureCard: View {
             
             Spacer()
         }
-        .padding(20)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
         .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color.primary.opacity(0.05))
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
         )
-        .scaleEffect(isVisible ? 1.0 : 0.9)
-        .opacity(isVisible ? 1.0 : 0.0)
-        .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(delay), value: isVisible)
-        .onAppear {
-            isVisible = true
-        }
     }
 }

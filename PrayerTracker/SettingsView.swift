@@ -12,8 +12,10 @@ struct SettingsView: View {
     @State private var dailyReminderEnabled = true
     @State private var reminderTime = Date()
     @State private var selectedTheme = 0 // 0: Auto, 1: Light, 2: Dark
-    @State private var weeklyGoal = 35
     @State private var isDeleting = false
+    @State private var showingPrivacyPolicy = false
+    @State private var showingTermsOfService = false
+    @State private var showingAbout = false
     
     let userProfile: UserProfile
     let prayerDebt: PrayerDebt
@@ -26,7 +28,13 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 24) {
+                VStack(alignment: .leading, spacing: 24) {
+                    // Standard Header
+                    Text("Settings")
+                        .font(.largeTitle.bold())
+                        .padding(.horizontal, 20)
+                        .padding(.top, 30)
+                    
                     // Goals & Preferences Section
                     SettingsSection(title: "Goals & Preferences", icon: "target") {
                         SettingsRow(title: "Daily Prayer Goal", icon: "calendar.day.timeline.left") {
@@ -38,15 +46,6 @@ struct SettingsView: View {
                                 }
                             )) {
                                 ForEach(Array(stride(from: 5, through: 30, by: 5)), id: \.self) { goal in
-                                    Text("\(goal) prayers").tag(goal)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                        }
-                        
-                        SettingsRow(title: "Weekly Goal", icon: "calendar.badge.clock") {
-                            Picker("Weekly Goal", selection: $weeklyGoal) {
-                                ForEach(Array(stride(from: 25, through: 50, by: 5)), id: \.self) { goal in
                                     Text("\(goal) prayers").tag(goal)
                                 }
                             }
@@ -84,8 +83,7 @@ struct SettingsView: View {
                         })
                         
                         NavigationLink {
-                            Text("Debt Adjustment")
-                                .navigationTitle("Adjust Debt")
+                            DebtAdjustmentView(prayerDebt: prayerDebt)
                         } label: {
                             SettingsRowContent(title: "Manually Adjust Debt", icon: "pencil.and.outline")
                         }
@@ -94,16 +92,17 @@ struct SettingsView: View {
                     
                     // About & Support Section
                     SettingsSection(title: "About & Support", icon: "info.circle") {
-                        NavigationLink {
-                            Text("About Qada & This App")
-                                .navigationTitle("About")
-                        } label: {
-                            SettingsRowContent(title: "About Qada & This App", icon: "book")
-                        }
+                        SettingsButton(title: "About Qada & This App", icon: "book", action: {
+                            showingAbout = true
+                        })
                         .buttonStyle(PlainButtonStyle())
                         
                         SettingsButton(title: "Privacy Policy", icon: "hand.raised", action: {
-                            // TODO: Add privacy policy
+                            showingPrivacyPolicy = true
+                        })
+                        
+                        SettingsButton(title: "Terms of Service", icon: "doc.text", action: {
+                            showingTermsOfService = true
                         })
                         
                         SettingsButton(title: "Contact Support", icon: "envelope", action: {
@@ -114,7 +113,7 @@ struct SettingsView: View {
                     // Account Section (Danger Zone)
                     SettingsSection(title: "Account", icon: "person.circle") {
                         SettingsButton(title: "Sign Out", icon: "rectangle.portrait.and.arrow.right", action: {
-                            // TODO: Add sign out functionality
+                            authManager.signOut()
                         })
                         
                         SettingsButton(title: "Delete All Data", icon: "trash", isDestructive: true, action: {
@@ -124,8 +123,6 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 24)
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.large)
 .alert("Delete All Data", isPresented: $showingDeleteConfirmation) {
                 Button(isDeleting ? "Deleting..." : "Delete", role: .destructive) {
                     deleteAllData()
@@ -136,8 +133,17 @@ struct SettingsView: View {
             } message: {
                 Text(isDeleting ? "Deleting all your prayer data..." : "Are you sure you want to delete all your prayer data? This action cannot be undone and will remove iCloud backups too.")
             }
-.sheet(isPresented: $showingExportSheet) {
+            .sheet(isPresented: $showingExportSheet) {
                 ExportDataView(userProfile: userProfile)
+            }
+            .sheet(isPresented: $showingPrivacyPolicy) {
+                PrivacyPolicyView()
+            }
+            .sheet(isPresented: $showingTermsOfService) {
+                TermsOfServiceView()
+            }
+            .sheet(isPresented: $showingAbout) {
+                AboutView()
             }
             .overlay {
                 if isDeleting {

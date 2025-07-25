@@ -22,77 +22,63 @@ enum AppState {
 struct PrayerTrackerApp: App {
     @State private var authManager = AuthenticationManager()
     @State private var appState: AppState = .loading
+    @State private var modelContainer: ModelContainer?
     
-    // Single ModelContainer for the entire app lifecycle - no switching!
-    private let modelContainer: ModelContainer = {
-        let schema = Schema([
-            UserProfile.self,
-            PrayerDebt.self,
-            DailyLog.self
-        ])
-        
-        do {
-            // Use a single database file for all users
-            let url = URL.applicationSupportDirectory.appending(path: "PrayerTracker.store")
-            let configuration = ModelConfiguration(schema: schema, url: url)
-            let container = try ModelContainer(for: schema, configurations: [configuration])
-            print("Created single ModelContainer with database: PrayerTracker.store")
-            return container
-        } catch {
-            print("Failed to create ModelContainer: \(error)")
-            // Fallback to in-memory container
-            do {
-                let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-                let container = try ModelContainer(for: schema, configurations: [configuration])
-                print("Created fallback in-memory container")
-                return container
-            } catch {
-                fatalError("Failed to create ModelContainer: \(error)")
-            }
-        }
-    }()
+    // Schema definition for user-specific containers
+    private let schema = Schema([
+        UserProfile.self,
+        PrayerDebt.self,
+        DailyLog.self
+    ])
     
     var body: some Scene {
         WindowGroup {
             Group {
-                switch appState {
-                case .loading:
-                    ProgressView("Loading...")
-                        .environment(authManager)
-                        
-                case .signIn:
-                    SignInView()
-                        .environment(authManager)
-                        
-                case .onboarding(let userID):
-                    OnboardingView(userID: userID) {
-                        Task {
-                            await determineAppState()
-                        }
-                    }
-                    .environment(authManager)
-                        
-                case .dashboard(let userID):
-                    DashboardWrapperView(userID: userID)
-                        .environment(authManager)
-                        
-                case .error(let error):
-                    VStack {
-                        Text("Error loading app")
-                            .foregroundColor(.red)
-                        Text(error.localizedDescription)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Button("Retry") {
-                            Task {
-                                await determineAppState()
+                if let container = modelContainer {
+                    Group {
+                        switch appState {
+                        case .loading:
+                            ProgressView("Loading...")
+                                .environment(authManager)
+                                
+                        case .signIn:
+                            SignInView()
+                                .environment(authManager)
+                                
+                        case .onboarding(let userID):
+                            OnboardingView(userID: userID) {
+                                Task {
+                                    await determineAppState()
+                                }
                             }
+                            .environment(authManager)
+                                
+                        case .dashboard(let userID):
+                            DashboardWrapperView(userID: userID)
+                                .environment(authManager)
+                                
+                        case .error(let error):
+                            VStack {
+                                Text("Error loading app")
+                                    .foregroundColor(.red)
+                                Text(error.localizedDescription)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Button("Retry") {
+                                    Task {
+                                        await determineAppState()
+                                    }
+                                }
+                            }
+                            .environment(authManager)
                         }
                     }
-                    .environment(authManager)
+                    .modelContainer(container) // User-specific container
+                } else {
+                    ProgressView("Initializing...")
+                        .environment(authManager)
                 }
             }
-            .modelContainer(modelContainer) // Single container for entire app
             .onOpenURL { url in
                 GIDSignIn.sharedInstance.handle(url)
             }
@@ -106,6 +92,7 @@ struct PrayerTrackerApp: App {
             }
             .onChange(of: authManager.currentUserID) { _, _ in
                 Task {
+                    await createContainerForCurrentUser()
                     await determineAppState()
                 }
             }
@@ -124,12 +111,52 @@ struct PrayerTrackerApp: App {
         }
     }
     
+    /// Creates a user-specific ModelContainer for the given user
+    @MainActor
+    private func createContainerForCurrentUser() async {
+        guard let userID = authManager.currentUserID else {
+            print("No userID available, creating default container")
+            modelContainer = createContainer(for: "default")
+            return
+        }
+        
+        print("Creating user-specific container for user: \(userID)")
+        modelContainer = createContainer(for: userID)
+    }
+    
+    /// Creates a ModelContainer for a specific user with isolated database file
+    private func createContainer(for userID: String) -> ModelContainer {
+        do {
+            // Create user-specific database file path
+            let url = URL.applicationSupportDirectory.appending(path: "PrayerTracker_\(userID).store")
+            let configuration = ModelConfiguration(schema: schema, url: url)
+            let container = try ModelContainer(for: schema, configurations: [configuration])
+            print("✅ Created ModelContainer for user: \(userID) with database: PrayerTracker_\(userID).store")
+            return container
+        } catch {
+            print("❌ Failed to create ModelContainer for user \(userID): \(error)")
+            print("Falling back to in-memory container for user: \(userID)")
+            // Fallback to in-memory container
+            do {
+                let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+                let container = try ModelContainer(for: schema, configurations: [configuration])
+                print("✅ Created fallback in-memory container for user: \(userID)")
+                return container
+            } catch {
+                fatalError("Failed to create fallback ModelContainer: \(error)")
+            }
+        }
+    }
+    
     @MainActor
     private func determineAppState() async {
         print("Determining app state...")
         
         // Set loading state
         appState = .loading
+        
+        // Create container for current user first
+        await createContainerForCurrentUser()
         
         // Small delay to ensure UI updates
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
@@ -140,11 +167,17 @@ struct PrayerTrackerApp: App {
             return
         }
         
+        guard let container = modelContainer else {
+            print("❌ No ModelContainer available")
+            appState = .error(NSError(domain: "ModelContainer", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create database container"]))
+            return
+        }
+        
         print("Authenticated user: \(userID)")
         
-        // Check if user profile exists in database
+        // Check if user profile exists in user-specific database
         do {
-            let context = modelContainer.mainContext
+            let context = container.mainContext
             let predicate = #Predicate<UserProfile> { profile in
                 profile.userID == userID
             }

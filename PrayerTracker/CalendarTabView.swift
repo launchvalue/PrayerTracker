@@ -39,13 +39,14 @@ struct CalendarTabView: View {
     }
 
     var body: some View {
-        ScrollView {
+        NavigationStack {
+            ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 // Standard Header
                 Text("Calendar")
                     .font(.largeTitle.bold())
                     .padding(.horizontal, 20)
-                    .padding(.top, 16)
+                    .padding(.top, 30)
 
                 // Enhanced Calendar with Modern Design
                 CustomCalendarView(month: $displayedMonth) { date in
@@ -107,6 +108,7 @@ struct CalendarTabView: View {
                 }
             }
             .padding(.bottom, 24)
+            }
         }
         .navigationBarHidden(true) // Hide default navigation bar
         .sheet(item: $selectedLog) { log in

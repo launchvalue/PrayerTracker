@@ -231,7 +231,8 @@ struct HomeView: View {
     }
     
     var body: some View {
-        ScrollView {
+        NavigationStack {
+            ScrollView {
             VStack(spacing: 24) {
                 // Header Section
                 VStack(alignment: .leading, spacing: 8) {
@@ -241,6 +242,7 @@ struct HomeView: View {
                                 .font(.title2)
                                 .fontWeight(.medium)
                                 .foregroundColor(.secondary)
+                                .padding(.top, 30)
                             
                             Text(userProfile.name.isEmpty ? "User" : userProfile.name)
                                 .font(.largeTitle)
@@ -359,6 +361,7 @@ struct HomeView: View {
                 }
                 
                 Spacer(minLength: 20)
+            }
             }
         }
         .navigationBarHidden(true)
