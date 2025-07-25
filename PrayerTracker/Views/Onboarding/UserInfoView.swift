@@ -12,7 +12,7 @@ struct UserInfoView: View {
     @Binding var gender: String
     @Binding var currentStep: Int
     @State private var isNameFocused = false
-    @State private var showContent = false
+
     @FocusState private var isTextFieldFocused: Bool
 
     let genders = ["Male", "Female"]
@@ -35,8 +35,7 @@ struct UserInfoView: View {
                                     .animation(.spring(response: 0.3), value: index == 1)
                             }
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .animation(.easeOut(duration: 0.5).delay(0.2), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 0.2, duration: 0.5))
                         .padding(.bottom, 16)
                         
                         // Title Section
@@ -51,9 +50,7 @@ struct UserInfoView: View {
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .offset(y: showContent ? 0 : 20)
-                        .animation(.easeOut(duration: 0.6).delay(0.4), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 0.4, duration: 0.6))
                         
 
                     }
@@ -107,9 +104,7 @@ struct UserInfoView: View {
                                 }
                             }
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .offset(y: showContent ? 0 : 30)
-                        .animation(.easeOut(duration: 0.6).delay(0.6), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 0.6, duration: 0.6))
                         
                         // Gender Selection Section
                         VStack(alignment: .leading, spacing: 16) {
@@ -163,9 +158,7 @@ struct UserInfoView: View {
                                 }
                             }
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .offset(y: showContent ? 0 : 30)
-                        .animation(.easeOut(duration: 0.6).delay(0.8), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 0.8, duration: 0.6))
                         
                         // Navigation Buttons
                         SimpleNavigationButtons(
@@ -183,8 +176,7 @@ struct UserInfoView: View {
                             canContinue: !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         )
                         .padding(.top, 32)
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 1.0, duration: 0.6))
                         
                         // Bottom spacing
                         Spacer(minLength: 32)
@@ -194,9 +186,7 @@ struct UserInfoView: View {
             }
             .scrollIndicators(.hidden)
         }
-        .onAppear {
-            showContent = true
-        }
+
         .onTapGesture {
             isTextFieldFocused = false
         }

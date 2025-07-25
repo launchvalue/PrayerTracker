@@ -21,7 +21,7 @@ struct StreaksCard: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.white)
+                .background(.regularMaterial)
                 .cornerRadius(10)
                 .shadow(radius: 3)
 
@@ -35,13 +35,13 @@ struct StreaksCard: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.white)
+                .background(.regularMaterial)
                 .cornerRadius(10)
                 .shadow(radius: 3)
             }
         }
         .padding()
-        .background(Color.white)
+        .background(.regularMaterial)
         .cornerRadius(15)
         .shadow(radius: 5)
     }

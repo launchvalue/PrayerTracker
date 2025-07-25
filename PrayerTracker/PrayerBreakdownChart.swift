@@ -43,7 +43,7 @@ struct PrayerBreakdownChart: View {
             .padding()
         }
         .padding()
-        .background(Color.white)
+        .background(.regularMaterial)
         .cornerRadius(15)
         .shadow(radius: 5)
     }

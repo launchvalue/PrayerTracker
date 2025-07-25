@@ -7,7 +7,7 @@ struct StatsView: View {
     @Query private var userProfiles: [UserProfile]
     
     let userID: String
-    @State private var showContent = false
+
     
     init(userID: String) {
         self.userID = userID
@@ -31,8 +31,7 @@ struct StatsView: View {
                                     .foregroundColor(.primary)
                                     .padding(.top, 30)
                                     .padding(.leading, 20)
-                                    .opacity(showContent ? 1 : 0)
-                                    .animation(.easeOut(duration: 0.6), value: showContent)
+                                    .modifier(FadeInOnAppearModifier(delay: 0.0, duration: 0.6))
                                 Spacer()
                             }
                             
@@ -82,8 +81,7 @@ struct StatsView: View {
                                             
                                             Spacer()
                                         }
-                                        .opacity(showContent ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.6).delay(0.2), value: showContent)
+                                        .modifier(FadeInOnAppearModifier(delay: 0.2, duration: 0.6))
                                     }
                                 }
                                 .padding(.horizontal, AppSpacing.large)
@@ -157,8 +155,7 @@ struct StatsView: View {
                                             Spacer()
                                         }
                                         .padding(.horizontal, 24)
-                                        .opacity(showContent ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.6).delay(0.4), value: showContent)
+                                        .modifier(FadeInOnAppearModifier(delay: 0.4, duration: 0.6))
                                         
                                         // Single unified stats card
                                         HStack(spacing: 0) {
@@ -211,8 +208,7 @@ struct StatsView: View {
                                         .padding(24)
                                         .standardCardBackgroundWithShadow(cornerRadius: 20)
                                         .padding(.horizontal, 24)
-                                        .opacity(showContent ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.6).delay(0.5), value: showContent)
+                                        .modifier(FadeInOnAppearModifier(delay: 0.5, duration: 0.6))
                                     }
                                     
                                     // Remaining Prayers - Minimal List
@@ -224,8 +220,7 @@ struct StatsView: View {
                                             Spacer()
                                         }
                                         .padding(.horizontal, 24)
-                                        .opacity(showContent ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.6).delay(0.6), value: showContent)
+                                        .modifier(FadeInOnAppearModifier(delay: 0.6, duration: 0.6))
                                         
                                         // Compact prayer list
                                         VStack(spacing: 0) {
@@ -256,8 +251,7 @@ struct StatsView: View {
                                                 .background(
                                                     index % 2 == 0 ? Color.clear : Color.primary.opacity(0.02)
                                                 )
-                                                .opacity(showContent ? 1 : 0)
-                                                .animation(.easeOut(duration: 0.6).delay(0.7 + Double(index) * 0.1), value: showContent)
+                                                .modifier(FadeInOnAppearModifier(delay: 0.7 + Double(index) * 0.1, duration: 0.6))
                                             }
                                         }
                                         .standardCardBackgroundWithShadow()
@@ -320,8 +314,7 @@ struct StatsView: View {
                                         }
                                         .buttonStyle(PlainButtonStyle())
                                         .padding(.horizontal, 24)
-                                        .opacity(showContent ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.6).delay(1.5), value: showContent)
+                                        .modifier(FadeInOnAppearModifier(delay: 1.5, duration: 0.6))
                                     }
                                     
                                 } else {
@@ -351,7 +344,7 @@ struct StatsView: View {
             .onAppear {
                 statsService.fetchData()
                 withAnimation(.easeOut(duration: 0.3).delay(0.1)) {
-                    showContent = true
+                    // Animation now handled by modifier
                 }
             }
             .animation(.easeOut(duration: 0.3), value: statsService.isLoading)

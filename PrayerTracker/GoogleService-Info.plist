@@ -7,13 +7,13 @@
 	<key>REVERSED_CLIENT_ID</key>
 	<string>com.googleusercontent.apps.313804251285-dqmv6oo81uvc51gcsvfr6lt4p76cjaqp</string>
 	<key>API_KEY</key>
-	<string>AIzaSyDummyKeyForDevelopment</string>
+	<string>AIzaSyAq3gVPBgTK46FVUEox8Lu1y1yi2ZA__Fk</string>
 	<key>GCM_SENDER_ID</key>
 	<string>313804251285</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.PrayerTracker</string>
+	<string>com.prayerstack.prayertracker</string>
 	<key>PROJECT_ID</key>
 	<string>prayer-tracker-project</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:YOUR_SENDER_ID_HERE:ios:YOUR_APP_ID_HERE</string>
+	<string>1:313804251285:ios:qe4kjlo3s81c1im7b9mqvv2lis3i7k6s.apps.googleusercontent.com</string>
 </dict>
 </plist>

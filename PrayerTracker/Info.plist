@@ -20,6 +20,8 @@
 		<string>remote-notification</string>
 	</array>
 	<key>CFBundleIdentifier</key>
-	<string>PrayerTracker</string>
+	<string>com.prayerstack.prayertracker</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>PrayerTracker sends daily reminders to help you maintain your prayer practice and track missed prayers (qada). You can customize reminder times in Settings.</string>
 </dict>
 </plist>

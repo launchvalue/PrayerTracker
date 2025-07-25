@@ -1,21 +1,22 @@
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openURL) private var openURL
     @Environment(AuthenticationManager.self) private var authManager
 
     @State private var showingDeleteConfirmation = false
     @State private var showingExportSheet = false
-    @State private var dailyReminderEnabled = true
-    @State private var reminderTime = Date()
-    @State private var selectedTheme = 0 // 0: Auto, 1: Light, 2: Dark
+    @State private var themeManager = ThemeManager.shared
     @State private var isDeleting = false
     @State private var showingPrivacyPolicy = false
     @State private var showingTermsOfService = false
     @State private var showingAbout = false
+    @State private var notificationManager = NotificationManager.shared
     
     let userProfile: UserProfile
     let prayerDebt: PrayerDebt
@@ -53,10 +54,13 @@ struct SettingsView: View {
                         }
                         
                         SettingsRow(title: "Theme", icon: "paintbrush") {
-                            Picker("Theme", selection: $selectedTheme) {
-                                Text("Auto").tag(0)
-                                Text("Light").tag(1)
-                                Text("Dark").tag(2)
+                            Picker("Theme", selection: Binding(
+                                get: { themeManager.selectedTheme },
+                                set: { themeManager.setTheme($0) }
+                            )) {
+                                ForEach(AppTheme.allCases, id: \.self) { theme in
+                                    Text(theme.displayName).tag(theme)
+                                }
                             }
                             .pickerStyle(.segmented)
                         }
@@ -65,12 +69,32 @@ struct SettingsView: View {
                     // Notifications Section
                     SettingsSection(title: "Notifications", icon: "bell") {
                         SettingsRow(title: "Daily Reminders", icon: "bell.badge") {
-                            Toggle("", isOn: $dailyReminderEnabled)
+                            Toggle("", isOn: Binding(
+                                get: { notificationManager.dailyReminderEnabled },
+                                set: { newValue in
+                                    Task {
+                                        if newValue {
+                                            let granted = await notificationManager.requestPermission()
+                                            if granted {
+                                                notificationManager.dailyReminderEnabled = newValue
+                                            }
+                                        } else {
+                                            notificationManager.dailyReminderEnabled = newValue
+                                        }
+                                    }
+                                }
+                            ))
                         }
                         
-                        if dailyReminderEnabled {
+                        if notificationManager.dailyReminderEnabled {
                             SettingsRow(title: "Reminder Time", icon: "clock") {
-                                DatePicker("", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                                DatePicker("", selection: Binding(
+                                    get: { notificationManager.reminderTime },
+                                    set: { newValue in
+                                        notificationManager.reminderTime = newValue
+                                        notificationManager.saveReminderTime()
+                                    }
+                                ), displayedComponents: .hourAndMinute)
                                     .labelsHidden()
                             }
                         }
@@ -106,7 +130,10 @@ struct SettingsView: View {
                         })
                         
                         SettingsButton(title: "Contact Support", icon: "envelope", action: {
-                            // TODO: Add contact support
+                            // Open mail app with support email using SwiftUI
+                            if let url = URL(string: "mailto:reachmajdm@gmail.com?subject=PrayerTracker Support") {
+                                openURL(url)
+                            }
                         })
                     }
                     
@@ -336,52 +363,5 @@ struct SettingsButton: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// MARK: - Export Data View (Placeholder)
-
-struct ExportDataView: View {
-    let userProfile: UserProfile
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 48))
-                    .foregroundColor(.accentColor)
-                
-                Text("Export Your Data")
-                    .font(.headline)
-                
-                Text("Export your prayer tracking data to backup or transfer to another device.")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                
-                VStack(spacing: 12) {
-                    Button("Export as JSON") {
-                        // TODO: Implement JSON export
-                    }
-                    .buttonStyle(.borderedProminent)
-                    
-                    Button("Export as CSV") {
-                        // TODO: Implement CSV export
-                    }
-                    .buttonStyle(.bordered)
-                }
-            }
-            .padding(20)
-            .navigationTitle("Export Data")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
     }
 }

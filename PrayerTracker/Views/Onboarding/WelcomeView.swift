@@ -9,7 +9,6 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Binding var currentStep: Int
-    @State private var showContent = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -111,7 +110,7 @@ struct WelcomeView: View {
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                        .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                                 )
                                 .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                             }
@@ -124,23 +123,13 @@ struct WelcomeView: View {
                     // Bottom safe area spacer
                     Spacer()
                         .frame(height: 32) // Fixed spacing instead of safe area
-                    }
+                                }
+                    .modifier(FadeInOnAppearModifier(delay: 0.3, duration: 0.8))
                 }
-                .opacity(showContent ? 1.0 : 0.0)
-                .animation(.easeOut(duration: 0.8), value: showContent)
                 .ignoresSafeArea(.all)
             }
         }
-        .onAppear {
-            startAnimationSequence()
-        }
-    }
-    
-    private func startAnimationSequence() {
-        // Simple fade-in animation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            showContent = true
-        }
+
     }
 }
 

@@ -27,7 +27,7 @@ struct OnboardingSummaryView: View {
     @Binding var currentStep: Int
     let onSave: () -> Void
     
-    @State private var showContent = false
+    @State private var showDots = false
     @State private var showCelebration = false
     @State private var animateStats = false
 
@@ -92,12 +92,11 @@ struct OnboardingSummaryView: View {
                                     Circle()
                                         .fill(Color.green)
                                         .frame(width: 8, height: 8)
-                                        .scaleEffect(showContent ? 1.2 : 0.8)
-                                        .animation(.spring(response: 0.3).delay(Double(index) * 0.1), value: showContent)
+                                        .scaleEffect(showDots ? 1.2 : 0.8)
+                                        .animation(.spring(response: 0.3).delay(Double(index) * 0.1), value: showDots)
                                 }
                             }
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .animation(.easeOut(duration: 0.5).delay(0.2), value: showContent)
+                            .modifier(FadeInOnAppearModifier(delay: 0.2, duration: 0.5))
                             .padding(.bottom, 16)
                             
                             // Celebration Icon
@@ -132,9 +131,7 @@ struct OnboardingSummaryView: View {
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.center)
                             }
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .offset(y: showContent ? 0 : 20)
-                            .animation(.easeOut(duration: 0.6).delay(0.6), value: showContent)
+                            .modifier(FadeInOnAppearModifier(delay: 0.6, duration: 0.6))
                         }
                         .frame(minHeight: geometry.size.height * 0.20)
                         
@@ -192,11 +189,9 @@ struct OnboardingSummaryView: View {
                             .background(
                                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                                     .fill(.background)
-                                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                    .shadow(color: Color.primary.opacity(0.1), radius: 10, x: 0, y: 5)
                             )
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .offset(y: showContent ? 0 : 30)
-                            .animation(.easeOut(duration: 0.6).delay(0.8), value: showContent)
+                            .modifier(FadeInOnAppearModifier(delay: 0.8, duration: 0.6))
                             
                             // Method Summary Card
                             VStack(spacing: 16) {
@@ -238,9 +233,7 @@ struct OnboardingSummaryView: View {
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                                     .fill(Color.primary.opacity(0.05))
                             )
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .offset(y: showContent ? 0 : 30)
-                            .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
+                            .modifier(FadeInOnAppearModifier(delay: 1.0, duration: 0.6))
                             
                             // Motivational Message
                             VStack(spacing: 16) {
@@ -259,9 +252,7 @@ struct OnboardingSummaryView: View {
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                                     .fill(Color.accentColor.opacity(0.05))
                             )
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .offset(y: showContent ? 0 : 30)
-                            .animation(.easeOut(duration: 0.6).delay(1.2), value: showContent)
+                            .modifier(FadeInOnAppearModifier(delay: 1.2, duration: 0.6))
                             
 
                             // Navigation Buttons
@@ -280,8 +271,7 @@ struct OnboardingSummaryView: View {
                                 canContinue: true
                             )
                             .padding(.top, 32)
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
+                            .modifier(FadeInOnAppearModifier(delay: 1.0, duration: 0.6))
                             
                             // Bottom spacing
                             Spacer(minLength: 40)
@@ -294,7 +284,7 @@ struct OnboardingSummaryView: View {
             }
         }
         .onAppear {
-            showContent = true
+            showDots = true
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 showCelebration = true

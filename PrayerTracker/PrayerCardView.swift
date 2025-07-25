@@ -37,7 +37,7 @@ struct PrayerCardView: View {
             .disabled(prayerOwed == 0)
         }
         .padding()
-        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .background(RoundedRectangle(cornerRadius: 16).fill(.regularMaterial))
+        .shadow(color: Color.primary.opacity(0.1), radius: 5, x: 0, y: 2)
     }
 }

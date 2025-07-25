@@ -3,7 +3,7 @@ import SwiftUI
 struct GoalSelectionView: View {
     @Binding var dailyGoal: Int
     @Binding var currentStep: Int
-    @State private var showContent = false
+
     @State private var selectedGoalIndex = 0
     
     private let goalOptions = Array(stride(from: 5, through: 30, by: 5))
@@ -58,8 +58,7 @@ struct GoalSelectionView: View {
                                     .animation(.spring(response: 0.3), value: index == 3)
                             }
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .animation(.easeOut(duration: 0.5).delay(0.2), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 0.2, duration: 0.5))
                         .padding(.bottom, 16)
                         
                         // Title Section
@@ -74,9 +73,7 @@ struct GoalSelectionView: View {
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .offset(y: showContent ? 0 : 20)
-                        .animation(.easeOut(duration: 0.6).delay(0.4), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 0.4, duration: 0.6))
                     }
                     .frame(minHeight: geometry.size.height * 0.20)
                     
@@ -104,9 +101,7 @@ struct GoalSelectionView: View {
                                         .foregroundColor(.secondary)
                                 }
                             }
-                            .scaleEffect(showContent ? 1.0 : 0.8)
-                            .opacity(showContent ? 1.0 : 0.0)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.6), value: showContent)
+                            .modifier(FadeInOnAppearModifier(delay: 0.6, duration: 0.6))
                             
                             // Goal Recommendation Card
                             if let recommendation = currentRecommendation {
@@ -137,9 +132,7 @@ struct GoalSelectionView: View {
                                                 .stroke(recommendation.color.opacity(0.3), lineWidth: 1)
                                         )
                                 )
-                                .opacity(showContent ? 1.0 : 0.0)
-                                .offset(y: showContent ? 0 : 20)
-                                .animation(.easeOut(duration: 0.6).delay(0.8), value: showContent)
+                                .modifier(FadeInOnAppearModifier(delay: 0.8, duration: 0.6))
                             }
                         }
                         
@@ -205,9 +198,7 @@ struct GoalSelectionView: View {
                                 }
                             }
                         }
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .offset(y: showContent ? 0 : 30)
-                        .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 1.0, duration: 0.6))
                         
                         // Tips Section
                         VStack(alignment: .leading, spacing: 16) {
@@ -226,9 +217,7 @@ struct GoalSelectionView: View {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .fill(Color.accentColor.opacity(0.05))
                         )
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .offset(y: showContent ? 0 : 30)
-                        .animation(.easeOut(duration: 0.6).delay(1.2), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 1.2, duration: 0.6))
                         
                         // Navigation Buttons
                         SimpleNavigationButtons(
@@ -246,19 +235,15 @@ struct GoalSelectionView: View {
                             canContinue: true
                         )
                         .padding(.top, 32)
-                        .opacity(showContent ? 1.0 : 0.0)
-                        .animation(.easeOut(duration: 0.6).delay(1.0), value: showContent)
+                        .modifier(FadeInOnAppearModifier(delay: 1.0, duration: 0.6))
                         
                         // Bottom spacing
                         Spacer(minLength: 32)
                     }
-                    .padding(.horizontal, 24)
                 }
             }
-            .scrollIndicators(.hidden)
         }
         .onAppear {
-            showContent = true
             if !goalOptions.contains(dailyGoal) {
                 dailyGoal = 5
             }

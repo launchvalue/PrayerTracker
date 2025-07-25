@@ -23,6 +23,7 @@ struct PrayerTrackerApp: App {
     @State private var authManager = AuthenticationManager()
     @State private var appState: AppState = .loading
     @State private var modelContainer: ModelContainer?
+    @State private var themeManager = ThemeManager.shared
     
     // Schema definition for user-specific containers
     private let schema = Schema([
@@ -59,11 +60,7 @@ struct PrayerTrackerApp: App {
                                 
                         case .error(let error):
                             VStack {
-                                Text("Error loading app")
-                                    .foregroundColor(.red)
-                                Text(error.localizedDescription)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                Text("Error: \(error.localizedDescription)")
                                 Button("Retry") {
                                     Task {
                                         await determineAppState()
@@ -74,9 +71,13 @@ struct PrayerTrackerApp: App {
                         }
                     }
                     .modelContainer(container) // User-specific container
+                    .environment(themeManager)
+                    .preferredColorScheme(themeManager.colorScheme)
                 } else {
                     ProgressView("Initializing...")
                         .environment(authManager)
+                        .environment(themeManager)
+                        .preferredColorScheme(themeManager.colorScheme)
                 }
             }
             .onOpenURL { url in

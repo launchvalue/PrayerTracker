@@ -37,8 +37,8 @@ struct SignInView: View {
                         .frame(height: geometry.size.height * 0.5)
                     
                     // Content Section - Bottom 50% of screen
-                VStack(spacing: 32) {
-                    Spacer(minLength: 24)
+                VStack(spacing: 20) {
+                    Spacer(minLength: 12)
                     // Headline Block
                     VStack(spacing: 4) {
                         Text("Welcome to")
@@ -109,7 +109,7 @@ struct SignInView: View {
                     }
                     .padding(.horizontal, 24)
                     
-                    Spacer(minLength: 20)
+                    Spacer(minLength: 8)
                     
                     // Legal Footnote
                     VStack(spacing: 4) {
@@ -141,7 +141,7 @@ struct SignInView: View {
                     }
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 32)
+                    .padding(.bottom, 16)
                 }
                 .frame(maxHeight: .infinity)
                 }
