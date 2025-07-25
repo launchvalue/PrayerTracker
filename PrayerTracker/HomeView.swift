@@ -233,42 +233,63 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-            VStack(spacing: 24) {
-                // Header Section
-                VStack(alignment: .leading, spacing: 8) {
+            VStack(spacing: 32) {
+                // Professional header with proper spacing
+                VStack(spacing: 20) {
+                    // Status indicators row - refined and balanced
                     HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Assalamu Alaikum")
-                                .font(.title2)
-                                .fontWeight(.medium)
+                        // Hijri date pill
+                        HStack(spacing: 8) {
+                            Image(systemName: "calendar")
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.secondary)
-                                .padding(.top, 30)
-                            
-                            Text(userProfile.name.isEmpty ? "User" : userProfile.name)
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
+                            Text(hijriDate)
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.secondary)
                         }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(.quaternary.opacity(0.5), in: Capsule())
                         
                         Spacer()
                         
-                        VStack(alignment: .trailing, spacing: 4) {
-                            Text(hijriDate)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
-                            Text("🔥 \(userProfile.streak)")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                        // Streak indicator pill
+                        HStack(spacing: 8) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.orange)
+                            Text("\(userProfile.streak) day\(userProfile.streak == 1 ? "" : "s")")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.orange)
                         }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(.orange.opacity(0.1), in: Capsule())
                     }
+                    .padding(.horizontal, 24)
+                    
+                    // Main greeting section - properly spaced
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Assalamu Alaikum")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Text(userProfile.name.isEmpty ? "User" : userProfile.name)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                    .padding(.horizontal, 24)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
+                .padding(.top, 24)
                 
                 // Weekly Overview - MOVED TO TOP
                 VStack(spacing: 16) {
                     HStack {
-                        Text("This Week")
+                        Text("This Week's Progress")
                             .font(.headline)
                             .fontWeight(.semibold)
                         Spacer()

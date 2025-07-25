@@ -33,7 +33,7 @@ struct SettingsView: View {
                     Text("Settings")
                         .font(.largeTitle.bold())
                         .padding(.horizontal, 20)
-                        .padding(.top, 30)
+                        .padding(.top, 20)
                     
                     // Goals & Preferences Section
                     SettingsSection(title: "Goals & Preferences", icon: "target") {

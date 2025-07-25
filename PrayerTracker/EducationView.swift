@@ -17,6 +17,181 @@ struct EducationTopic: Identifiable, Hashable {
     let sources: [String: URL]
 }
 
+// MARK: - Daily Prayer Quote Component
+
+struct PrayerQuote {
+    let text: String
+    let attribution: String
+    let source: String
+}
+
+struct DailyPrayerQuoteView: View {
+    private let quotes: [PrayerQuote] = [
+        PrayerQuote(
+            text: "Prayer is the pillar of religion and the key to Paradise.",
+            attribution: "Prophet Muhammad ﷺ",
+            source: "Hadith"
+        ),
+        PrayerQuote(
+            text: "Prayer is better than sleep.",
+            attribution: "Adhan (Call to Prayer)",
+            source: "Islamic Tradition"
+        ),
+        PrayerQuote(
+            text: "The first thing for which a servant of Allah will be held accountable on the Day of Resurrection will be his prayers.",
+            attribution: "Prophet Muhammad ﷺ",
+            source: "Sunan an-Nasa'i"
+        ),
+        PrayerQuote(
+            text: "Prayer is the ascension (Mi'raj) of the believer.",
+            attribution: "Prophet Muhammad ﷺ",
+            source: "Islamic Teaching"
+        ),
+        PrayerQuote(
+            text: "And establish prayer and give zakah and bow with those who bow.",
+            attribution: "Allah ﷻ",
+            source: "Quran 2:43"
+        ),
+        PrayerQuote(
+            text: "Prayer is the light of the believer's heart.",
+            attribution: "Islamic Wisdom",
+            source: "Spiritual Teaching"
+        ),
+        PrayerQuote(
+            text: "Verily, in the remembrance of Allah do hearts find rest.",
+            attribution: "Allah ﷻ",
+            source: "Quran 13:28"
+        ),
+        PrayerQuote(
+            text: "The difference between a believer and a disbeliever is the abandoning of prayer.",
+            attribution: "Prophet Muhammad ﷺ",
+            source: "Sahih Muslim"
+        ),
+        PrayerQuote(
+            text: "When you stand for prayer, perform it as if it is your last.",
+            attribution: "Prophet Muhammad ﷺ",
+            source: "Hadith"
+        ),
+        PrayerQuote(
+            text: "Prayer is the weapon of the believer, the pillar of religion, and the light of the heavens and earth.",
+            attribution: "Ali ibn Abi Talib (RA)",
+            source: "Islamic Wisdom"
+        ),
+        PrayerQuote(
+            text: "Seek help through patience and prayer, and indeed, it is difficult except for the humbly submissive.",
+            attribution: "Allah ﷻ",
+            source: "Quran 2:45"
+        ),
+        PrayerQuote(
+            text: "Prayer is the stairway to heaven.",
+            attribution: "Islamic Teaching",
+            source: "Spiritual Wisdom"
+        ),
+        PrayerQuote(
+            text: "The closest that a person can be to his Lord is when he is prostrating.",
+            attribution: "Prophet Muhammad ﷺ",
+            source: "Sahih Muslim"
+        ),
+        PrayerQuote(
+            text: "Prayer is the believer's connection to the Divine.",
+            attribution: "Islamic Wisdom",
+            source: "Spiritual Teaching"
+        ),
+        PrayerQuote(
+            text: "And whoever relies upon Allah - then He is sufficient for him. Indeed, Allah will accomplish His purpose.",
+            attribution: "Allah ﷻ",
+            source: "Quran 65:3"
+        )
+    ]
+    
+    private var dailyQuote: PrayerQuote {
+        let calendar = Calendar.current
+        let dayOfYear = calendar.ordinality(of: .day, in: .year, for: Date()) ?? 1
+        let quoteIndex = (dayOfYear - 1) % quotes.count
+        return quotes[quoteIndex]
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header with crescent moon icon
+            HStack {
+                Image(systemName: "moon.stars.fill")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.accentColor)
+                
+                Text("Daily Inspiration")
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Text("Today")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(Color.accentColor.opacity(0.1))
+                    )
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
+            
+            // Quote content
+            VStack(spacing: 12) {
+                Text(dailyQuote.text)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                VStack(spacing: 4) {
+                    Text("— \(dailyQuote.attribution)")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.accentColor)
+                    
+                    Text(dailyQuote.source)
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
+        }
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.accentColor.opacity(0.03),
+                    Color.accentColor.opacity(0.08),
+                    Color.accentColor.opacity(0.03)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.accentColor.opacity(0.2),
+                            Color.clear,
+                            Color.accentColor.opacity(0.1)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .shadow(color: Color.primary.opacity(0.08), radius: 8, x: 0, y: 4)
+    }
+}
+
 // MARK: - Main View
 
 struct EducationView: View {
@@ -61,7 +236,11 @@ struct EducationView: View {
                     Text("Learn")
                         .font(.largeTitle.bold())
                         .padding(.horizontal, 20)
-                        .padding(.top, 30)
+                        .padding(.top, 20)
+                    
+                    // Daily Quote Component
+                    DailyPrayerQuoteView()
+                        .padding(.horizontal, 16)
                     
                     // Enhanced Content Cards
                     ForEach(topics) { topic in

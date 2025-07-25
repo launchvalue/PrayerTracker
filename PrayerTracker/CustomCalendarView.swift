@@ -74,17 +74,17 @@ struct CustomCalendarView<Content: View>: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                 }
             }
             .padding(.horizontal, 4)
             
-            // Calendar Grid
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 8) {
+            // Calendar Grid - more compact
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 4) {
                 ForEach(days, id: \.self) { date in
                     if date.timeIntervalSince1970 < 0 {
                         Color.clear
-                            .frame(height: 60)
+                            .frame(height: 45)
                     } else {
                         content(date)
                     }
@@ -92,7 +92,7 @@ struct CustomCalendarView<Content: View>: View {
             }
             .padding(.horizontal, 4)
         }
-        .padding(20)
+        .padding(16)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
 

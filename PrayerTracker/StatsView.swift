@@ -29,7 +29,7 @@ struct StatsView: View {
                                 Text("Your Progress")
                                     .font(.largeTitle.bold())
                                     .foregroundColor(.primary)
-                                    .padding(.top, 50)
+                                    .padding(.top, 30)
                                     .padding(.leading, 20)
                                     .opacity(showContent ? 1 : 0)
                                     .animation(.easeOut(duration: 0.6), value: showContent)

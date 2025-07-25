@@ -126,7 +126,7 @@ struct SimpleNavigationButtons: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Back Button
+            // Back Button with Standard Glass
             Button(action: backAction) {
                 HStack(spacing: 6) {
                     Image(systemName: "chevron.left")
@@ -134,22 +134,16 @@ struct SimpleNavigationButtons: View {
                     Text("Back")
                         .font(.system(size: 16, weight: .medium))
                 }
-                .foregroundColor(.accentColor)
-                .frame(height: 44)
                 .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(Color.accentColor, lineWidth: 1.5)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(.clear)
-                        )
-                )
+                .frame(height: 44)
             }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.roundedRectangle(radius: 16))
+            .controlSize(.regular)
             .disabled(!canGoBack)
             .opacity(canGoBack ? 1.0 : 0.5)
             
-            // Continue Button
+            // Continue Button with Standard Glass
             Button(action: continueAction) {
                 HStack(spacing: 6) {
                     Text(continueText)
@@ -159,16 +153,80 @@ struct SimpleNavigationButtons: View {
                             .font(.system(size: 14, weight: .medium))
                     }
                 }
-                .foregroundColor(.white)
-                .frame(height: 44)
                 .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(canContinue ? Color.accentColor : Color.gray.opacity(0.3))
-                )
+                .frame(height: 44)
             }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.roundedRectangle(radius: 16))
+            .controlSize(.regular)
             .disabled(!canContinue)
             .opacity(canContinue ? 1.0 : 0.5)
         }
+    }
+}
+
+// MARK: - Toolbar Navigation (Apple HIG Alternative)
+struct ToolbarNavigationButtons: View {
+    let backAction: () -> Void
+    let continueAction: () -> Void
+    let continueText: String
+    let canGoBack: Bool
+    let canContinue: Bool
+    
+    init(
+        backAction: @escaping () -> Void,
+        continueAction: @escaping () -> Void,
+        continueText: String = "Continue",
+        canGoBack: Bool = true,
+        canContinue: Bool = true
+    ) {
+        self.backAction = backAction
+        self.continueAction = continueAction
+        self.continueText = continueText
+        self.canGoBack = canGoBack
+        self.canContinue = canContinue
+    }
+    
+    var body: some View {
+        // Toolbar approach following Apple HIG
+        HStack {
+            // Leading: Back button
+            Button(action: backAction) {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("Back")
+                        .font(.system(size: 17, weight: .regular))
+                }
+            }
+            .disabled(!canGoBack)
+            .opacity(canGoBack ? 1.0 : 0.3)
+            
+            Spacer()
+            
+            // Trailing: Continue button
+            Button(action: continueAction) {
+                HStack(spacing: 4) {
+                    Text(continueText)
+                        .font(.system(size: 17, weight: .semibold))
+                    if continueText != "Begin Your Journey" {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
+            .controlSize(.regular)
+            .tint(.blue)
+            .disabled(!canContinue)
+            .opacity(canContinue ? 1.0 : 0.3)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .background(
+            .ultraThinMaterial,
+            in: RoundedRectangle(cornerRadius: 0, style: .continuous)
+        )
     }
 }

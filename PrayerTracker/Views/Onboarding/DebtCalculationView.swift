@@ -219,8 +219,59 @@ struct DebtCalculationView: View {
                 .multilineTextAlignment(.center)
             
             VStack(spacing: 16) {
-                DateSelectionRow(title: "Start Date", date: $startDate, maxDate: endDate)
-                DateSelectionRow(title: "End Date", date: $endDate, minDate: startDate)
+                // Compact Date Range Selector
+                VStack(spacing: 12) {
+                    HStack {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.accentColor)
+                        Text("Date Range")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                        Spacer()
+                    }
+                    
+                    HStack(spacing: 12) {
+                        // Start Date
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("From")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.secondary)
+                            DatePicker(
+                                "Start Date",
+                                selection: $startDate,
+                                in: Date.distantPast...endDate,
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(.compact)
+                            .labelsHidden()
+                        }
+                        
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.secondary)
+                        
+                        // End Date
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("To")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.secondary)
+                            DatePicker(
+                                "End Date",
+                                selection: $endDate,
+                                in: startDate...Date.distantFuture,
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(.compact)
+                            .labelsHidden()
+                        }
+                    }
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.primary.opacity(0.05))
+                )
                 
                 if gender == "Female" {
                     VStack(spacing: 12) {

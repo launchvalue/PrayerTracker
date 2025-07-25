@@ -183,7 +183,7 @@ struct GoalSelectionView: View {
                                 
                                 // Quick Goal Buttons
                                 HStack(spacing: 12) {
-                                    ForEach([5, 10, 15, 20], id: \.self) { goal in
+                                    ForEach(goalOptions, id: \.self) { goal in
                                         Button(action: {
                                             withAnimation(.spring(response: 0.3)) {
                                                 dailyGoal = goal

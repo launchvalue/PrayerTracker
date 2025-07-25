@@ -46,7 +46,7 @@ struct CalendarTabView: View {
                 Text("Calendar")
                     .font(.largeTitle.bold())
                     .padding(.horizontal, 20)
-                    .padding(.top, 30)
+                    .padding(.top, 36)
 
                 // Enhanced Calendar with Modern Design
                 CustomCalendarView(month: $displayedMonth) { date in
@@ -151,12 +151,12 @@ struct EnhancedCalendarDayCell: View {
     }
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             // Date Display - consistent size for all days
             Text(date.formatted(.dateTime.day()))
                 .font(.caption.weight(.medium))
                 .foregroundStyle(isToday ? Color.accentColor : .primary)
-                .frame(width: 32, height: 32)
+                .frame(width: 28, height: 28)
                 .background {
                     // Only show red stroke for yesterday missed, no background for today
                     if isYesterdayMissed && !isToday {
@@ -165,8 +165,8 @@ struct EnhancedCalendarDayCell: View {
                     }
                 }
             
-            // Progress Indicator
-            VStack(spacing: 2) {
+            // Progress Indicator - more compact
+            VStack(spacing: 1) {
                 Text("\(prayersCompleted)/\(dailyGoal)")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -174,25 +174,15 @@ struct EnhancedCalendarDayCell: View {
                 // Progress Bar
                 RoundedRectangle(cornerRadius: 2)
                     .fill(.quaternary)
-                    .frame(width: 24, height: 3)
+                    .frame(width: 20, height: 2)
                     .overlay(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 2)
                             .fill(statusColor)
-                            .frame(width: 24 * progressPercentage, height: 3)
+                            .frame(width: 20 * progressPercentage, height: 2)
                     }
-                
-                // Status Icon - fixed height container to prevent layout shifts
-                VStack {
-                    if prayersCompleted >= dailyGoal {
-                        Image(systemName: prayersCompleted > dailyGoal ? "star.fill" : "checkmark.circle.fill")
-                            .font(.caption2)
-                            .foregroundStyle(statusColor)
-                    }
-                }
-                .frame(height: 12) // Fixed height to prevent layout shifts
             }
         }
-        .frame(height: 60)
+        .frame(height: 45)
         .contentShape(Rectangle())
     }
 }
@@ -361,9 +351,9 @@ struct CalendarDayCell: View {
                         .font(.caption2)
                         .foregroundColor(.secondary)
                     if log.prayersCompleted >= dailyGoal {
-                        Image(systemName: log.prayersCompleted > dailyGoal ? "star.fill" : "checkmark.circle.fill")
+                        Image(systemName: "checkmark.circle.fill")
                             .font(.caption2)
-                            .foregroundColor(log.prayersCompleted > dailyGoal ? .yellow : .green)
+                            .foregroundColor(.green)
                     }
                 } else {
                     // Placeholder for days with no log

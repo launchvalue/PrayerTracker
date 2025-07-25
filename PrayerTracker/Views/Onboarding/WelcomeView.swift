@@ -33,14 +33,14 @@ struct WelcomeView: View {
                                 .font(.system(size: 24, weight: .medium, design: .rounded))
                                 .foregroundColor(.secondary)
                             
-                            Text("PrayerTracker")
+                            Text("QadaaTracker")
                                 .font(.system(size: 36, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                         }
                         .multilineTextAlignment(.center)
                         
                         // Subtitle
-                        Text("Your personal companion for\ntracking your missed prayers.")
+                        Text("Turn your missed prayers into a plan.")
                             .font(.system(size: 18, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -53,11 +53,11 @@ struct WelcomeView: View {
                     VStack(spacing: 24) {
                         // Section Header
                         VStack(spacing: 16) {
-                            Text("Why Choose PrayerTracker?")
+                            Text("Why Choose QadaaTracker?")
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                             
-                            Text("Track your missed prayers, build consistency, and strengthen your spiritual journey")
+                            Text("QadaaTracker turns overwhelming counts into doable, daily action.")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
