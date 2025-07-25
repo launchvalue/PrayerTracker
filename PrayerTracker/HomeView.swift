@@ -331,6 +331,7 @@ struct HomeView: View {
                                 debtCount: getPrayerDebtCount(for: prayer),
                                 isEnabled: getPrayerDebtCount(for: prayer) > 0,
                                 color: getPrayerColor(for: prayer),
+                                hasMetDailyGoal: log.prayersCompleted >= userProfile.dailyGoal,
                                 onTap: {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         updatePrayerStatus(prayerName: prayer, log: log, profile: userProfile)
@@ -433,11 +434,11 @@ struct HomeView: View {
     
     private func getPrayerColor(for prayer: String) -> Color {
         switch prayer {
-        case "Fajr": return .blue
-        case "Dhuhr": return .orange
-        case "Asr": return .yellow
-        case "Maghrib": return .pink
-        case "Isha": return .purple
+        case "Fajr": return .green
+        case "Dhuhr": return .blue
+        case "Asr": return .orange
+        case "Maghrib": return .purple
+        case "Isha": return .indigo
         default: return .gray
         }
     }
@@ -475,6 +476,7 @@ struct FloatingPrayerCard: View {
     let debtCount: Int
     let isEnabled: Bool
     let color: Color
+    let hasMetDailyGoal: Bool
     let onTap: () -> Void
     
     @State private var isPressed = false
@@ -497,67 +499,76 @@ struct FloatingPrayerCard: View {
                         .scaleEffect(y: isPressed ? 1.2 : 1.0)
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(prayer)
-                            .font(.system(.headline, design: .rounded))
-                            .fontWeight(.semibold)
-                            .foregroundColor(.primary)
-                        
-                        if isEnabled {
+                        HStack(spacing: 8) {
+                            Text(prayer)
+                                .font(.system(.headline, design: .rounded))
+                                .fontWeight(.semibold)
+                                .foregroundColor(.primary)
+                            
+                            // Visual status indicators
                             HStack(spacing: 4) {
-                                Text("\(debtCount) to make up")
-                                    .font(.caption)
-                                    .foregroundColor(color)
-                                    .fontWeight(.medium)
-                                
                                 if todayCount > 0 {
-                                    Text("•")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                    // Show logged prayers as filled circles
+                                    ForEach(0..<min(todayCount, 5), id: \.self) { _ in
+                                        Circle()
+                                            .fill(color)
+                                            .frame(width: 6, height: 6)
+                                    }
                                     
-                                    Text("\(todayCount) today")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .fontWeight(.medium)
+                                    // Show exceeded count if more than 5
+                                    if todayCount > 5 {
+                                        Text("+\(todayCount - 5)")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(color)
+                                    }
+                                }
+                                
+                                // Goal exceeded indicator
+                                if todayCount > 1 {
+                                    Image(systemName: "star.fill")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(.yellow)
                                 }
                             }
-                        } else {
-                            Text("Complete ✓")
+                        }
+                        
+                        if isEnabled {
+                            Text("\(debtCount) to make up")
                                 .font(.caption)
-                                .foregroundColor(.green)
+                                .foregroundColor(color)
                                 .fontWeight(.medium)
+                        } else {
+                            HStack(spacing: 4) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                                
+                                Text("Complete")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                                    .fontWeight(.medium)
+                            }
                         }
                     }
                 }
                 
                 Spacer()
                 
-                // Right side - Subtle action indicator
+                // Right side - Minimal action indicator
                 HStack(spacing: 16) {
                     if isEnabled {
-                        // Subtle tap indicator using native iOS elements
-                        HStack(spacing: 6) {
-                            // Small plus icon in secondary color
-                            Image(systemName: "plus.circle.fill")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.secondary)
-                                .opacity(isPressed ? 0.6 : 0.8)
-                                .scaleEffect(isPressed ? 0.95 : 1.0)
-                            
-                            // Chevron to indicate tappable
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.secondary)
-                                .opacity(0.4)
-                                .scaleEffect(isPressed ? 0.9 : 1.0)
-                        }
+                        // Minimal plus icon - changes color based on goal completion
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(hasMetDailyGoal ? .green : color)
+                            .opacity(isPressed ? 0.6 : 1.0)
+                            .scaleEffect(isPressed ? 0.9 : 1.0)
                     } else {
                         // Completed state with subtle checkmark
-                        HStack(spacing: 6) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.green)
-                                .opacity(0.8)
-                        }
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.green)
+                            .opacity(0.8)
                     }
                 }
             }

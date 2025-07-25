@@ -41,26 +41,11 @@ struct CalendarTabView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                // Enhanced Header with Modern Design
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "calendar")
-                            .font(.title2)
-                            .foregroundStyle(Color.accentColor)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Calendar")
-                                .font(.largeTitle.bold())
-                            Text("Track your daily prayer progress")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .padding(20)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+                // Standard Header
+                Text("Calendar")
+                    .font(.largeTitle.bold())
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
 
                 // Enhanced Calendar with Modern Design
                 CustomCalendarView(month: $displayedMonth) { date in

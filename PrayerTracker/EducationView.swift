@@ -57,35 +57,10 @@ struct EducationView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 24) {
-                    // Enhanced Header
-                    VStack(spacing: 16) {
-                        HStack {
-                            Image(systemName: "book.closed")
-                                .font(.system(size: 28, weight: .medium))
-                                .foregroundColor(.accentColor)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Learn")
-                                    .font(.largeTitle.bold())
-                                    .foregroundColor(.primary)
-                                
-                                Text("Guidance on the principles of Qada prayers")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            Spacer()
-                        }
-                        .padding(20)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
-                    }
-                    .padding(.horizontal, 20)
-                    
                     // Enhanced Content Cards
                     ForEach(topics) { topic in
                         EnhancedEducationCardView(topic: topic)
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, 16)
                     }
                 }
                 .padding(.vertical, 20)

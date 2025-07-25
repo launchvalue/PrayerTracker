@@ -22,72 +22,72 @@ struct StatsView: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { geometry in
-                ZStack {
-                    // Edge-to-edge gradient background
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.accentColor.opacity(0.08),
-                            Color.clear,
-                            Color.accentColor.opacity(0.05)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .ignoresSafeArea(.all)
-                    
-                    ScrollView {
+            ScrollView {
                         VStack(spacing: 0) {
                             // Header Section (25% of screen height)
                             VStack(spacing: 16) {
                                 Spacer(minLength: 8)
                                 
-                                // Hero Stats Section
-                                VStack(spacing: 12) {
-                                    Text("Your Progress")
-                                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                                        .foregroundColor(.primary)
-                                        .opacity(showContent ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.6), value: showContent)
+                                // Hero Stats Section - Left Aligned
+                                VStack(alignment: .leading, spacing: 16) {
+                                    HStack {
+                                        Text("Your Progress")
+                                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                            .opacity(showContent ? 1 : 0)
+                                            .animation(.easeOut(duration: 0.6), value: showContent)
+                                        Spacer()
+                                    }
                                     
                                     if !statsService.isLoading && !statsService.hasError && !userProfiles.isEmpty {
-                                        HStack(spacing: 40) {
+                                        HStack(spacing: 32) {
                                             // Overall Progress
-                                            VStack(spacing: 8) {
+                                            VStack(alignment: .leading, spacing: 6) {
                                                 Text("\(Int(statsService.overallCompletionPercentage * 100))%")
-                                                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                                                    .font(.system(size: 44, weight: .bold, design: .rounded))
                                                     .foregroundColor(.primary)
+                                                    .minimumScaleFactor(0.8)
+                                                    .lineLimit(1)
                                                 
                                                 Text("Complete")
-                                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                                    .font(.system(size: 15, weight: .medium, design: .rounded))
                                                     .foregroundColor(.secondary)
+                                                    .minimumScaleFactor(0.9)
+                                                    .lineLimit(1)
                                             }
                                             
                                             // Current Streak
-                                            VStack(spacing: 8) {
+                                            VStack(alignment: .leading, spacing: 6) {
                                                 HStack(spacing: 6) {
                                                     Image(systemName: "flame.fill")
-                                                        .font(.system(size: 24, weight: .medium))
+                                                        .font(.system(size: 20, weight: .medium))
                                                         .foregroundColor(.orange)
                                                     
                                                     Text("\(statsService.currentStreak)")
-                                                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                                                        .font(.system(size: 44, weight: .bold, design: .rounded))
                                                         .foregroundColor(.primary)
+                                                        .minimumScaleFactor(0.8)
+                                                        .lineLimit(1)
                                                 }
                                                 
                                                 Text("Day Streak")
-                                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                                    .font(.system(size: 15, weight: .medium, design: .rounded))
                                                     .foregroundColor(.secondary)
+                                                    .minimumScaleFactor(0.9)
+                                                    .lineLimit(1)
                                             }
+                                            
+                                            Spacer()
                                         }
                                         .opacity(showContent ? 1 : 0)
                                         .animation(.easeOut(duration: 0.6).delay(0.2), value: showContent)
                                     }
                                 }
+                                .padding(.horizontal, AppSpacing.large)
                                 
                                 Spacer(minLength: 8)
                             }
-                            .frame(minHeight: geometry.size.height * 0.25)
+                            .frame(minHeight: 200)
                             
                             // Content Section
                             VStack(spacing: 24) {
@@ -343,10 +343,8 @@ struct StatsView: View {
                                 Spacer(minLength: 40)
                             }
                         }
-                    }
-                    .scrollIndicators(.hidden)
-                }
             }
+            .scrollIndicators(.hidden)
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .refreshable {

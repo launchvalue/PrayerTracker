@@ -46,7 +46,7 @@ struct WelcomeView: View {
                         .animation(.easeOut(duration: 0.5).delay(0.1), value: animationPhase)
                         
                         // Subtitle
-                        Text("Your personal companion for\nspiritual growth and accountability")
+                        Text("Your personal companion for\ntracking your missed prayers.")
                             .font(.system(size: 18, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -66,7 +66,7 @@ struct WelcomeView: View {
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                             
-                            Text("Track your prayers, build consistency, and strengthen your spiritual journey")
+                            Text("Track your missed prayers, build consistency, and strengthen your spiritual journey")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
@@ -81,14 +81,14 @@ struct WelcomeView: View {
                             FeatureCard(
                                 icon: "chart.line.uptrend.xyaxis",
                                 title: "Smart Progress Tracking",
-                                description: "Visualize your journey with detailed analytics and motivation...",
+                                description: "Visualize your journey with detailed analytics.",
                                 delay: 1.2
                             )
                             
                             FeatureCard(
                                 icon: "target",
                                 title: "Personalized Goals",
-                                description: "Set achievable daily targets that adapt to your lifestyle and capa...",
+                                description: "Set achievable daily targets that adapt to your lifestyle and capabilities.",
                                 delay: 1.4
                             )
                             
