@@ -169,6 +169,18 @@ class NotificationManager {
         }
     }
     
+    // Clear any delivered notifications when app opens
+    func clearDeliveredNotifications() {
+        notificationCenter.removeDeliveredNotifications(withIdentifiers: ["dailyPrayerReminder"])
+        // Clear badge count
+        notificationCenter.setBadgeCount(0) { error in
+            if let error = error {
+                print("Error clearing badge count: \(error)")
+            }
+        }
+        print("Delivered notifications cleared on app open")
+    }
+    
     // Get formatted time string for display
     var formattedReminderTime: String {
         let formatter = DateFormatter()

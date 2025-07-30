@@ -2,7 +2,7 @@
 //  DebtCalculationView.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 6/25/25.
+//  Created by Developer.
 //
 
 import SwiftUI
@@ -40,7 +40,14 @@ struct DebtCalculationView: View {
             }
             return totalDays * 5
         case .bulk:
-            return (bulkYears * 354 * 5) + (bulkMonths * 30 * 5) + (bulkDays * 5)
+            var totalDays = (bulkYears * 365) + (bulkMonths * 30) + bulkDays
+            
+            if gender == "Female" && averageCycleLength > 0 {
+                let approximateMonths = Double(totalDays) / 30.44
+                let totalMenstrualDays = Int(approximateMonths * Double(averageCycleLength))
+                totalDays = max(0, totalDays - totalMenstrualDays)
+            }
+            return totalDays * 5
         case .custom:
             return customFajr + customDhuhr + customAsr + customMaghrib + customIsha
         }
@@ -312,6 +319,43 @@ struct DebtCalculationView: View {
                 StepperRow(title: "Years", value: $bulkYears, range: 0...50, icon: "calendar")
                 StepperRow(title: "Months", value: $bulkMonths, range: 0...11, icon: "calendar.badge.clock")
                 StepperRow(title: "Days", value: $bulkDays, range: 0...30, icon: "clock")
+                
+                if gender == "Female" {
+                    VStack(spacing: 12) {
+                        HStack {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.accentColor)
+                            
+                            Text("Menstrual Cycle Adjustment")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                        }
+                        
+                        VStack(spacing: 8) {
+                            HStack {
+                                Text("Average cycle length: \(averageCycleLength) days")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                            }
+                            
+                            Slider(value: Binding(
+                                get: { Double(averageCycleLength) },
+                                set: { averageCycleLength = Int($0) }
+                            ), in: 0...15, step: 1)
+                                .accentColor(.accentColor)
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color.accentColor.opacity(0.05))
+                        )
+                    }
+                }
             }
         }
     }

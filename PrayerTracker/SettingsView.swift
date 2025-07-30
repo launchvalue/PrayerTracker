@@ -131,7 +131,7 @@ struct SettingsView: View {
                         
                         SettingsButton(title: "Contact Support", icon: "envelope", action: {
                             // Open mail app with support email using SwiftUI
-                            if let url = URL(string: "mailto:reachmajdm@gmail.com?subject=PrayerTracker Support") {
+                            if let url = URL(string: "mailto:support@prayerstack.com?subject=PrayerTracker Support") {
                                 openURL(url)
                             }
                         })

@@ -28,6 +28,10 @@ struct HomeView: View {
     @State private var todaysLog: DailyLog?
     @State private var logCreationError: Error?
     @State private var isCreatingLog = false
+    
+    // State variables for reset functionality
+    @State private var showingResetConfirmation = false
+    @State private var prayerToReset: String?
 
     private var totalRemaining: Int {
         prayerDebt.fajrOwed + prayerDebt.dhuhrOwed + prayerDebt.asrOwed + prayerDebt.maghribOwed + prayerDebt.ishaOwed
@@ -133,6 +137,44 @@ struct HomeView: View {
             print("Prayer status updated and debt adjusted.")
         } catch {
             print("Failed to update prayer status or debt: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Resets the prayer count for today and restores debt
+    private func resetPrayerCount(prayerName: String, log: DailyLog) {
+        let currentCount = getPrayerCount(for: prayerName, from: log)
+        
+        // Only reset if there are prayers logged today
+        guard currentCount > 0 else { return }
+        
+        switch prayerName {
+        case "Fajr":
+            prayerDebt.fajrOwed += log.fajr
+            log.fajr = 0
+        case "Dhuhr":
+            prayerDebt.dhuhrOwed += log.dhuhr
+            log.dhuhr = 0
+        case "Asr":
+            prayerDebt.asrOwed += log.asr
+            log.asr = 0
+        case "Maghrib":
+            prayerDebt.maghribOwed += log.maghrib
+            log.maghrib = 0
+        case "Isha":
+            prayerDebt.ishaOwed += log.isha
+            log.isha = 0
+        default:
+            break
+        }
+        
+        // Update daily streak after reset
+        updateDailyStreak(log: log, profile: userProfile)
+        
+        do {
+            try modelContext.save()
+            print("Prayer count reset for \(prayerName). Debt restored.")
+        } catch {
+            print("Failed to reset prayer count: \(error.localizedDescription)")
         }
     }
     
@@ -299,7 +341,7 @@ struct HomeView: View {
                     }
                     
                     ProgressView(value: progress)
-                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                        .progressViewStyle(LinearProgressViewStyle(tint: .green))
                         .scaleEffect(y: 2)
                     
                     WeeklyCalendarView(logs: currentWeekLogs, dailyGoal: userProfile.dailyGoal)
@@ -359,13 +401,19 @@ struct HomeView: View {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         updatePrayerStatus(prayerName: prayer, log: log, profile: userProfile)
                                     }
+                                },
+                                onLongPress: {
+                                    // Only allow reset if prayers have been logged today
+                                    if getPrayerCount(for: prayer, from: log) > 0 {
+                                        prayerToReset = prayer
+                                        showingResetConfirmation = true
+                                    }
                                 }
                             )
                         }
                     }
                     .padding(.horizontal, 20)
 
-                    
                 } else if isCreatingLog {
                     HStack {
                         Spacer()
@@ -405,6 +453,24 @@ struct HomeView: View {
             Button("OK") { }
         } message: {
             Text(logCreationError?.localizedDescription ?? "An unknown error occurred while creating today's prayer log.")
+        }
+        .alert("Reset Prayer Count?", isPresented: $showingResetConfirmation) {
+            Button("Reset", role: .destructive) {
+                if let prayer = prayerToReset, let log = todaysLog {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        resetPrayerCount(prayerName: prayer, log: log)
+                    }
+                }
+                prayerToReset = nil
+            }
+            Button("Cancel", role: .cancel) {
+                prayerToReset = nil
+            }
+        } message: {
+            if let prayer = prayerToReset, let log = todaysLog {
+                let count = getPrayerCount(for: prayer, from: log)
+                Text("This will reset today's \(prayer) count to 0 and restore \(count) \(count == 1 ? "prayer" : "prayers") to your debt. This action cannot be undone.")
+            }
         }
     }
 
@@ -502,12 +568,12 @@ struct FloatingPrayerCard: View {
     let color: Color
     let hasMetDailyGoal: Bool
     let onTap: () -> Void
+    let onLongPress: () -> Void
     
     @State private var isPressed = false
     
     var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 0) {
+        HStack(spacing: 0) {
                 // Left side - Prayer info with gradient accent
                 HStack(spacing: 12) {
                     // Animated color indicator
@@ -600,14 +666,20 @@ struct FloatingPrayerCard: View {
             .padding(.vertical, 14)
             .enhancedCardBackground(color: isEnabled ? color : .clear)
             .scaleEffect(isPressed ? 0.98 : 1.0)
-        }
         .disabled(!isEnabled)
-        .buttonStyle(PlainButtonStyle())
-        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+        .onTapGesture {
+            if isEnabled {
+                onTap()
+            }
+        }
+        .onLongPressGesture(minimumDuration: 0.6, maximumDistance: .infinity, pressing: { pressing in
             withAnimation(.easeInOut(duration: 0.1)) {
                 isPressed = pressing
             }
-        }, perform: {})
+        }, perform: {
+            // Long press action for reset
+            onLongPress()
+        })
     }
 }
 

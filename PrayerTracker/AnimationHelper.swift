@@ -2,7 +2,7 @@
 //  AnimationHelper.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 7/25/25.
+//  Created by Developer.
 //  Shared animation utilities to eliminate code duplication
 //
 

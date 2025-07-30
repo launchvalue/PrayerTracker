@@ -2,7 +2,7 @@
 //  EducationView.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 6/29/25.
+//  Created by Developer.
 //
 
 import SwiftUI

@@ -3,7 +3,7 @@
 //  SignInView.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 6/26/25.
+//  Created by Developer.
 //
 
 import SwiftUI

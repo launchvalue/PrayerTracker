@@ -3,7 +3,7 @@
 //  OnboardingView.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 6/25/25.
+//  Created by Developer.
 //
 
 import SwiftUI
@@ -48,7 +48,23 @@ struct OnboardingView: View {
             DebtCalculationView(gender: $gender, calculationMethod: $calculationMethod, startDate: $startDate, endDate: $endDate, bulkYears: $bulkYears, bulkMonths: $bulkMonths, bulkDays: $bulkDays, customFajr: $customFajr, customDhuhr: $customDhuhr, customAsr: $customAsr, customMaghrib: $customMaghrib, customIsha: $customIsha, averageCycleLength: $averageCycleLength, currentStep: $currentStep)
                 .tag(2)
             
-            GoalSelectionView(dailyGoal: $dailyGoal, currentStep: $currentStep)
+            GoalSelectionView(
+                dailyGoal: $dailyGoal,
+                currentStep: $currentStep,
+                gender: gender,
+                calculationMethod: calculationMethod,
+                startDate: startDate,
+                endDate: endDate,
+                bulkYears: bulkYears,
+                bulkMonths: bulkMonths,
+                bulkDays: bulkDays,
+                customFajr: customFajr,
+                customDhuhr: customDhuhr,
+                customAsr: customAsr,
+                customMaghrib: customMaghrib,
+                customIsha: customIsha,
+                averageCycleLength: averageCycleLength
+            )
                 .tag(3)
             
             OnboardingSummaryView(

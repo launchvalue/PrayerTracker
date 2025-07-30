@@ -3,7 +3,7 @@
 //  PrayerTrackerApp.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 6/25/25.
+//  Created by Developer.
 //
 
 import SwiftUI
@@ -85,6 +85,8 @@ struct PrayerTrackerApp: App {
             }
             .onAppear {
                 configureGoogleSignIn()
+                // Clear any delivered notifications when app opens
+                NotificationManager.shared.clearDeliveredNotifications()
                 authManager.restorePreviousSignIn {
                     Task {
                         await determineAppState()
@@ -108,6 +110,10 @@ struct PrayerTrackerApp: App {
                 Task {
                     await determineAppState()
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                // Clear notifications when app returns to foreground
+                NotificationManager.shared.clearDeliveredNotifications()
             }
         }
     }

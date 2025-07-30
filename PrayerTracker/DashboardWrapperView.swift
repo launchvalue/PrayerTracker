@@ -2,7 +2,7 @@
 //  DashboardWrapperView.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 7/18/25.
+//  Created by Developer.
 //
 
 import SwiftUI

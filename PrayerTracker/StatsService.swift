@@ -131,6 +131,61 @@ class StatsService {
         }
         return streak
     }
+    
+    var currentWeekStreak: Int {
+        guard !hasError, !isLoading, let dailyGoal = userProfile?.dailyGoal, dailyGoal > 0, !logs.isEmpty else { return 0 }
+        
+        let calendar = Calendar.current
+        var weekStreak = 0
+        
+        // Start from the current week and work backwards
+        var currentWeekStart = calendar.dateInterval(of: .weekOfYear, for: Date())!.start
+        
+        while true {
+            guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: currentWeekStart) else { break }
+            
+            // Get all days in this week
+            var allDaysCompleted = true
+            
+            // Check each day of the week (7 days)
+            for dayOffset in 0..<7 {
+                guard let dayDate = calendar.date(byAdding: .day, value: dayOffset, to: weekInterval.start) else {
+                    allDaysCompleted = false
+                    break
+                }
+                
+                // Skip future dates
+                if dayDate > Date() {
+                    continue
+                }
+                
+                // Find log for this day
+                let dayLog = logs.first { calendar.isDate($0.dateOnly, inSameDayAs: dayDate) }
+                
+                // If no log or goal not met, week is incomplete
+                if let log = dayLog {
+                    if log.prayersCompleted < dailyGoal {
+                        allDaysCompleted = false
+                        break
+                    }
+                } else {
+                    allDaysCompleted = false
+                    break
+                }
+            }
+            
+            // If this week is complete, increment streak and continue to previous week
+            if allDaysCompleted {
+                weekStreak += 1
+                // Move to previous week
+                currentWeekStart = calendar.date(byAdding: .weekOfYear, value: -1, to: currentWeekStart)!
+            } else {
+                break
+            }
+        }
+        
+        return weekStreak
+    }
 
     var longestStreak: Int {
         guard !hasError, !isLoading, let dailyGoal = userProfile?.dailyGoal, dailyGoal > 0, !logs.isEmpty else { return 0 }

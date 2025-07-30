@@ -38,13 +38,14 @@ struct StatsView: View {
                             // Header Section - Compact
                             VStack(spacing: 8) {
                                 
-                                // Hero Stats Section - Left Aligned
-                                VStack(alignment: .leading, spacing: 16) {
+                                // Hero Stats Section - Centered
+                                VStack(alignment: .center, spacing: 16) {
                                     
                                     if !statsService.isLoading && !statsService.hasError && !userProfiles.isEmpty {
+                                        // Centered Stats Row
                                         HStack(spacing: 32) {
                                             // Overall Progress
-                                            VStack(alignment: .leading, spacing: 6) {
+                                            VStack(alignment: .center, spacing: 6) {
                                                 Text("\(Int(statsService.overallCompletionPercentage * 100))%")
                                                     .font(.system(size: 44, weight: .bold, design: .rounded))
                                                     .foregroundColor(.primary)
@@ -58,8 +59,8 @@ struct StatsView: View {
                                                     .lineLimit(1)
                                             }
                                             
-                                            // Current Streak
-                                            VStack(alignment: .leading, spacing: 6) {
+                                            // Current Day Streak
+                                            VStack(alignment: .center, spacing: 6) {
                                                 HStack(spacing: 6) {
                                                     Image(systemName: "flame.fill")
                                                         .font(.system(size: 20, weight: .medium))
@@ -79,8 +80,28 @@ struct StatsView: View {
                                                     .lineLimit(1)
                                             }
                                             
-                                            Spacer()
+                                            // Current Week Streak
+                                            VStack(alignment: .center, spacing: 6) {
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "calendar.badge.checkmark")
+                                                        .font(.system(size: 20, weight: .medium))
+                                                        .foregroundColor(.green)
+                                                    
+                                                    Text("\(statsService.currentWeekStreak)")
+                                                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                                                        .foregroundColor(.primary)
+                                                        .minimumScaleFactor(0.8)
+                                                        .lineLimit(1)
+                                                }
+                                                
+                                                Text("Week Streak")
+                                                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                                                    .foregroundColor(.secondary)
+                                                    .minimumScaleFactor(0.9)
+                                                    .lineLimit(1)
+                                            }
                                         }
+                                        .frame(maxWidth: .infinity) // Center the HStack
                                         .modifier(FadeInOnAppearModifier(delay: 0.2, duration: 0.6))
                                     }
                                 }
@@ -256,65 +277,6 @@ struct StatsView: View {
                                         }
                                         .standardCardBackgroundWithShadow()
                                         .padding(.horizontal, 24)
-                                    }
-                                    
-                                    // History Navigation Card
-                                    VStack(spacing: 16) {
-                                        NavigationLink(destination: HistoryView(userID: userID)) {
-                                            HStack(spacing: 16) {
-                                                // Icon with background
-                                                ZStack {
-                                                    Circle()
-                                                        .fill(Color.accentColor.opacity(0.1))
-                                                        .frame(width: 44, height: 44)
-                                                    
-                                                    Image(systemName: "clock.arrow.circlepath")
-                                                        .font(.system(size: 20, weight: .medium))
-                                                        .foregroundColor(.accentColor)
-                                                }
-                                                
-                                                VStack(alignment: .leading, spacing: 4) {
-                                                    Text("View Full History")
-                                                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                                                        .foregroundColor(.primary)
-                                                    
-                                                    Text("Explore your prayer journey")
-                                                        .font(.system(size: 14, weight: .medium))
-                                                        .foregroundColor(.secondary)
-                                                }
-                                                
-                                                Spacer()
-                                                
-                                                Image(systemName: "chevron.right")
-                                                    .font(.system(size: 14, weight: .medium))
-                                                    .foregroundColor(.secondary)
-                                                    .opacity(0.6)
-                                            }
-                                            .padding(20)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                                    .fill(.ultraThinMaterial)
-                                                    .overlay(
-                                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                                            .stroke(
-                                                                LinearGradient(
-                                                                    colors: [
-                                                                        .white.opacity(0.2),
-                                                                        .clear,
-                                                                        Color.accentColor.opacity(0.1)
-                                                                    ],
-                                                                    startPoint: .topLeading,
-                                                                    endPoint: .bottomTrailing
-                                                                ),
-                                                                lineWidth: 1
-                                                            )
-                                                    )
-                                            )
-                                            .shadow(color: Color.primary.opacity(0.1), radius: 8, x: 0, y: 4)
-                                        }
-                                        .buttonStyle(PlainButtonStyle())
-                                        .padding(.horizontal, 24)
-                                        .modifier(FadeInOnAppearModifier(delay: 1.5, duration: 0.6))
                                     }
                                     
                                 } else {

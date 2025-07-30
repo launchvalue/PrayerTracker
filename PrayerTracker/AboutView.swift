@@ -2,7 +2,7 @@
 //  AboutView.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 7/24/25.
+//  Created by Developer.
 //
 
 import SwiftUI

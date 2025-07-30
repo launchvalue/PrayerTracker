@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct CalendarTabView: View {
     @Environment(\.modelContext) private var modelContext
@@ -83,29 +84,64 @@ struct CalendarTabView: View {
                     }
                     .padding(.horizontal, 16)
                 }
-
-                // Enhanced Key Section
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "info.circle")
-                            .font(.title3)
-                            .foregroundStyle(.accent)
-                        Text("Legend")
-                            .font(.title2.bold())
+                
+                // View Full History Navigation Card
+                VStack(spacing: 16) {
+                    NavigationLink(destination: HistoryView(userID: userID)) {
+                        HStack(spacing: 16) {
+                            // Icon with background
+                            ZStack {
+                                Circle()
+                                    .fill(Color.accentColor.opacity(0.1))
+                                    .frame(width: 44, height: 44)
+                                
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.accentColor)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("View Full History")
+                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                
+                                Text("Explore your prayer journey")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.secondary)
+                                .opacity(0.6)
+                        }
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [
+                                                    .white.opacity(0.2),
+                                                    .clear,
+                                                    Color.accentColor.opacity(0.1)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 1
+                                        )
+                                )
+                        )
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 4)
-
-                    VStack(spacing: 12) {
-                        EnhancedKeyItem(icon: "checkmark.circle.fill", iconColor: .green, text: "Daily goal achieved")
-                        EnhancedKeyItem(icon: "star.fill", iconColor: .yellow, text: "Goal exceeded")
-                        EnhancedKeyItem(icon: "circle", iconColor: .red, text: "Yesterday missed", isStroke: true)
-                        EnhancedKeyItem(icon: "circle.fill", iconColor: Color.accentColor, text: "Today's date")
-                    }
-                    .padding(20)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .buttonStyle(PlainButtonStyle())
                     .padding(.horizontal, 16)
                 }
+
             }
             .padding(.bottom, 24)
             }
@@ -123,7 +159,7 @@ struct CalendarTabView: View {
     }
 }
 
-// Enhanced Calendar Day Cell with Modern Design
+// Enhanced Calendar Day Cell with Clean Design
 struct EnhancedCalendarDayCell: View {
     let date: Date
     let log: DailyLog?
@@ -140,49 +176,59 @@ struct EnhancedCalendarDayCell: View {
         return min(Double(prayersCompleted) / Double(dailyGoal), 1.0)
     }
     
-    private var statusColor: Color {
+    private var statusIcon: String? {
         if prayersCompleted >= dailyGoal {
-            return prayersCompleted > dailyGoal ? .yellow : .green
-        } else if isYesterdayMissed {
-            return .red
+            return "checkmark.circle.fill"
+        }
+        return nil
+    }
+    
+    private var statusColor: Color {
+        if prayersCompleted > dailyGoal {
+            return .yellow
+        } else if prayersCompleted >= dailyGoal {
+            return .green
         } else {
             return .secondary
         }
     }
 
     var body: some View {
-        VStack(spacing: 4) {
-            // Date Display - consistent size for all days
-            Text(date.formatted(.dateTime.day()))
-                .font(.caption.weight(.medium))
-                .foregroundStyle(isToday ? Color.accentColor : .primary)
-                .frame(width: 28, height: 28)
-                .background {
-                    // Only show red stroke for yesterday missed, no background for today
-                    if isYesterdayMissed && !isToday {
-                        Circle()
-                            .stroke(.red, lineWidth: 1.5)
-                    }
+        VStack(spacing: 6) {
+            // Date Display with proper background handling
+            ZStack {
+                // Background circle for today or yesterday missed
+                if isToday {
+                    Circle()
+                        .fill(Color.accentColor)
+                        .frame(width: 32, height: 32)
+                } else if isYesterdayMissed {
+                    Circle()
+                        .stroke(.red, lineWidth: 2)
+                        .frame(width: 32, height: 32)
                 }
+                
+                // Date text
+                Text(date.formatted(.dateTime.day()))
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundStyle(isToday ? .white : .primary)
+            }
+            .frame(width: 32, height: 32)
             
-            // Progress Indicator - more compact
-            VStack(spacing: 1) {
+            // Prayer count with status icon (cleaner than progress bar)
+            HStack(spacing: 2) {
                 Text("\(prayersCompleted)/\(dailyGoal)")
-                    .font(.caption2)
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(.secondary)
                 
-                // Progress Bar
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(.quaternary)
-                    .frame(width: 20, height: 2)
-                    .overlay(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(statusColor)
-                            .frame(width: 20 * progressPercentage, height: 2)
-                    }
+                if let icon = statusIcon {
+                    Image(systemName: icon)
+                        .font(.system(size: 8))
+                        .foregroundStyle(statusColor)
+                }
             }
         }
-        .frame(height: 45)
+        .frame(width: 44, height: 50)
         .contentShape(Rectangle())
     }
 }
@@ -260,48 +306,7 @@ struct EnhancedHistoryRow: View {
     }
 }
 
-// Enhanced Key Item for Legend
-struct EnhancedKeyItem: View {
-    let icon: String
-    let iconColor: Color
-    let text: String
-    let isStroke: Bool
-    
-    init(icon: String, iconColor: Color, text: String, isStroke: Bool = false) {
-        self.icon = icon
-        self.iconColor = iconColor
-        self.text = text
-        self.isStroke = isStroke
-    }
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Group {
-                if isStroke {
-                    Image(systemName: icon)
-                        .font(.subheadline)
-                        .foregroundStyle(iconColor)
-                        .overlay {
-                            Circle()
-                                .stroke(iconColor, lineWidth: 1.5)
-                                .frame(width: 16, height: 16)
-                        }
-                } else {
-                    Image(systemName: icon)
-                        .font(.subheadline)
-                        .foregroundStyle(iconColor)
-                }
-            }
-            .frame(width: 20, height: 20)
-            
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(.primary)
-            
-            Spacer()
-        }
-    }
-}
+
 
 // Keep original for backward compatibility
 struct CalendarDayCell: View {

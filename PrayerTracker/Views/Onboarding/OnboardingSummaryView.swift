@@ -3,7 +3,7 @@
 //  OnboardingSummaryView.swift
 //  PrayerTracker
 //
-//  Created by Majd Moussa on 6/25/25.
+//  Created by Developer.
 //
 
 import SwiftUI
@@ -45,7 +45,14 @@ struct OnboardingSummaryView: View {
             }
             return totalDays * 5
         case .bulk:
-            return (bulkYears * 354 * 5) + (bulkMonths * 30 * 5) + (bulkDays * 5)
+            var totalDays = (bulkYears * 365) + (bulkMonths * 30) + bulkDays
+            
+            if gender == "Female" && averageCycleLength > 0 {
+                let approximateMonths = Double(totalDays) / 30.44
+                let totalMenstrualDays = Int(approximateMonths * Double(averageCycleLength))
+                totalDays = max(0, totalDays - totalMenstrualDays)
+            }
+            return totalDays * 5
         case .custom:
             return customFajr + customDhuhr + customAsr + customMaghrib + customIsha
         }
@@ -56,7 +63,7 @@ struct OnboardingSummaryView: View {
         let daysToCompletion = Double(totalDebt) / Double(dailyGoal)
         let completionDate = Calendar.current.date(byAdding: .day, value: Int(ceil(daysToCompletion)), to: Date()) ?? Date()
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
+        formatter.dateFormat = "M/yyyy"
         return formatter.string(from: completionDate)
     }
     
@@ -177,7 +184,7 @@ struct OnboardingSummaryView: View {
                                     
                                     StatCard(
                                         title: "Completion",
-                                        value: estimatedCompletionDate.prefix(6).description,
+                                        value: estimatedCompletionDate,
                                         subtitle: "target date",
                                         icon: "flag.checkered",
                                         color: .purple,
